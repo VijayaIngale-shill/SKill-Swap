@@ -1,0 +1,1513 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GyanSwap – Dashboard</title>
+  <meta name="description"
+    content="Your GyanSwap dashboard – manage skills, track requests, and connect with learners." />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet" />
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --primary: #6366f1;
+      --primary-glow: rgba(99, 102, 241, 0.3);
+      --secondary: #4f46e5;
+      --accent: #10b981;
+      --accent-glow: rgba(16, 185, 129, 0.3);
+      --accent-soft: #d1fae5;
+      --sidebar-w: 260px;
+      --bg-dark: #0f172a;
+      --bg-slate: #1e293b;
+      --card-bg: rgba(30, 41, 59, 0.5);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --glass-bg: rgba(255, 255, 255, 0.03);
+      --glass-border: rgba(255, 255, 255, 0.1);
+    }
+
+    ::selection {
+      background: var(--primary);
+      color: #fff;
+    }
+
+    html,
+    body {
+      min-height: 100vh;
+      font-family: 'Poppins', sans-serif;
+      background: radial-gradient(circle at top left, #1e293b 0%, #0f172a 100%);
+      color: var(--text);
+      overflow-x: hidden;
+      line-height: 1.5;
+    }
+
+    /* ── Layout ── */
+    .layout {
+      display: flex;
+      min-height: 100vh;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ── Background Video ── */
+    .bg-video {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: -2;
+      pointer-events: none;
+    }
+
+    .bg-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at top left, rgba(30, 41, 59, 0.7) 0%, rgba(15, 23, 42, 0.9) 100%);
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      width: var(--sidebar-w);
+      flex-shrink: 0;
+      background: var(--bg-dark);
+      border-right: 1px solid var(--card-border);
+      display: flex;
+      flex-direction: column;
+      padding: 32px 0;
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100vh;
+      z-index: 10;
+      box-shadow: 10px 0 30px rgba(0, 0, 0, 0.2);
+    }
+
+    .sidebar-logo {
+      padding: 0 32px 32px;
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      margin-bottom: 24px;
+      color: #fff;
+    }
+
+    .sidebar-logo span {
+      color: var(--primary);
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 12px 32px;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      position: relative;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      cursor: pointer;
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left;
+      margin: 2px 0;
+    }
+
+    .nav-item:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.04);
+      padding-left: 36px;
+    }
+
+    .nav-item.active {
+      color: #fff;
+      background: linear-gradient(90deg, rgba(99, 102, 241, 0.15) 0%, transparent 100%);
+      font-weight: 600;
+    }
+
+    .nav-item.active::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      background: var(--primary);
+      box-shadow: 0 0 15px var(--primary-glow);
+    }
+
+    .nav-icon {
+      font-size: 20px;
+      width: 24px;
+      text-align: center;
+      flex-shrink: 0;
+      opacity: 0.7;
+      transition: opacity 0.2s;
+    }
+
+    .nav-item:hover .nav-icon,
+    .nav-item.active .nav-icon {
+      opacity: 1;
+    }
+
+    .nav-badge {
+      margin-left: auto;
+      background: var(--primary);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 30px;
+    }
+
+    .sidebar-spacer {
+      flex: 1;
+    }
+
+    .sidebar-footer {
+      padding: 32px 24px;
+      border-top: 1px solid var(--card-border);
+      margin-top: auto;
+    }
+
+    .logout-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      width: 100%;
+      padding: 14px;
+      border-radius: 14px;
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.2);
+      color: #fca5a5;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-family: inherit;
+    }
+
+    .logout-btn:hover {
+      background: #ef4444;
+      border-color: #ef4444;
+      color: #fff;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(239, 68, 68, 0.3);
+    }
+
+    /* ── Main ── */
+    .main {
+      margin-left: var(--sidebar-w);
+      flex: 1;
+      padding: 32px 36px;
+      min-height: 100vh;
+    }
+
+    /* ── Top bar ── */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 32px;
+      animation: fadeUp 0.5s ease both;
+    }
+
+    .topbar-left h2 {
+      font-size: 22px;
+      font-weight: 700;
+    }
+
+    .topbar-left p {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .topbar-btn {
+      padding: 10px 22px;
+      border-radius: 12px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      border: 1px solid var(--card-border);
+      background: var(--card-bg);
+      color: #fff;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .topbar-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.2);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    .topbar-btn.primary {
+      background: var(--primary);
+      border-color: var(--primary);
+      box-shadow: 0 4px 15px var(--primary-glow);
+    }
+
+    .topbar-btn.primary:hover {
+      background: var(--secondary);
+      border-color: var(--secondary);
+      box-shadow: 0 8px 25px var(--primary-glow);
+    }
+
+    .avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: 700;
+      cursor: pointer;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #fff;
+      flex-shrink: 0;
+      overflow: hidden;
+      position: relative;
+      transition: all 0.3s ease;
+    }
+
+    .avatar:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 20px var(--primary-glow);
+    }
+
+    .avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 50%;
+    }
+
+    /* ── Animations ── */
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .anim-1 {
+      animation: fadeUp 0.5s ease 0.05s both;
+    }
+
+    .anim-2 {
+      animation: fadeUp 0.5s ease 0.15s both;
+    }
+
+    .anim-3 {
+      animation: fadeUp 0.5s ease 0.25s both;
+    }
+
+    .anim-4 {
+      animation: fadeUp 0.5s ease 0.35s both;
+    }
+
+    .anim-5 {
+      animation: fadeUp 0.5s ease 0.45s both;
+    }
+
+    /* ── Stats row ── */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px;
+      margin-bottom: 28px;
+    }
+
+    .stat-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 24px;
+      padding: 24px;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .stat-card:hover {
+      transform: translateY(-6px);
+      background: rgba(30, 41, 59, 0.7);
+      border-color: rgba(255, 255, 255, 0.15);
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .stat-card::after {
+      content: '';
+      position: absolute;
+      bottom: -20px;
+      right: -20px;
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary-glow), transparent);
+    }
+
+    .stat-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    .stat-value {
+      font-size: 34px;
+      font-weight: 800;
+      letter-spacing: -1px;
+      color: #fff;
+    }
+
+    .stat-sub {
+      font-size: 12px;
+      color: var(--accent);
+      margin-top: 6px;
+      font-weight: 500;
+    }
+
+    .stat-icon {
+      position: absolute;
+      top: 24px;
+      right: 24px;
+      font-size: 26px;
+      opacity: 0.4;
+      transition: opacity 0.3s;
+    }
+
+    .stat-card:hover .stat-icon {
+      opacity: 0.8;
+    }
+
+    /* ── Grid content area ── */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 22px;
+      margin-bottom: 22px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 22px;
+      margin-bottom: 22px;
+    }
+
+    /* ── Glass card ── */
+    .glass-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 24px;
+      padding: 28px;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+    }
+
+    .card-title {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: #fff;
+    }
+
+    .card-title-link {
+      font-size: 11px;
+      font-weight: 600;
+      color: #fff;
+      text-decoration: none;
+      background: rgba(255, 255, 255, 0.12);
+      padding: 6px 14px;
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .card-title-link:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    /* ── Skill tags ── */
+    .skill-section {
+      margin-bottom: 20px;
+    }
+
+    .skill-section-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    .skill-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .skill-tag {
+      padding: 6px 16px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 500;
+      border: 1px solid var(--card-border);
+      background: var(--card-bg);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text);
+    }
+
+    .skill-tag:hover {
+      background: rgba(255, 255, 255, 0.1);
+      transform: translateY(-2px);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .skill-tag.teach {
+      border-color: var(--accent-glow);
+      background: rgba(16, 185, 129, 0.1);
+      color: var(--accent);
+    }
+
+    .skill-tag.learn {
+      border-color: var(--primary-glow);
+      background: rgba(99, 102, 241, 0.1);
+      color: var(--primary);
+    }
+
+    .add-tag {
+      padding: 6px 14px;
+      border-radius: 12px;
+      font-size: 13px;
+      color: var(--text-muted);
+      border: 1px dashed var(--card-border);
+      cursor: pointer;
+      background: none;
+      font-family: 'Poppins', sans-serif;
+      transition: all 0.2s;
+    }
+
+    .add-tag:hover {
+      color: #fff;
+      border-color: var(--text-muted);
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    /* ── Activity feed ── */
+    .activity-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+    }
+
+    .activity-item:last-child {
+      border-bottom: none;
+    }
+
+    .activity-dot {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      flex-shrink: 0;
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .activity-text {
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .activity-text strong {
+      font-weight: 600;
+    }
+
+    .activity-time {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    /* ── Requests list ── */
+    .request-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+    }
+
+    .request-item:last-child {
+      border-bottom: none;
+    }
+
+    .req-avatar {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .req-info {
+      flex: 1;
+    }
+
+    .req-name {
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .req-skill {
+      font-size: 11.5px;
+      color: var(--text-muted);
+    }
+
+    .req-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .req-btn {
+      padding: 6px 16px;
+      border-radius: 10px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s ease;
+    }
+
+    .req-btn.accept {
+      background: var(--accent);
+      color: #064e3b;
+      box-shadow: 0 4px 12px var(--accent-glow);
+    }
+
+    .req-btn.accept:hover {
+      background: #059669;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px var(--accent-glow);
+    }
+
+    .req-btn.decline {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-muted);
+      border: 1px solid var(--card-border);
+    }
+
+    .req-btn.decline:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    /* ── Explore / People ── */
+    .people-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .person-card {
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 14px;
+      padding: 16px;
+      text-align: center;
+      transition: transform 0.2s, background 0.2s;
+      cursor: pointer;
+    }
+
+    .person-card:hover {
+      transform: translateY(-3px);
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    .person-av {
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      margin: 0 auto 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .person-name {
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .person-skill {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .connect-btn {
+      margin-top: 10px;
+      padding: 5px 14px;
+      border-radius: 30px;
+      background: rgba(255, 255, 255, 0.12);
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      cursor: pointer;
+      font-family: 'Poppins', sans-serif;
+      font-size: 11px;
+      font-weight: 600;
+      transition: background 0.2s;
+    }
+
+    .connect-btn:hover {
+      background: rgba(255, 255, 255, 0.22);
+    }
+
+    /* ── Progress bar ── */
+    .progress-row {
+      margin-bottom: 14px;
+    }
+
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      margin-bottom: 6px;
+    }
+
+    .progress-label span:last-child {
+      color: var(--text-muted);
+    }
+
+    .progress-track {
+      height: 8px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      border-radius: 10px;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+      box-shadow: 0 0 10px var(--primary-glow);
+    }
+
+    /* ── Quick actions ── */
+    .quick-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .quick-btn {
+      padding: 14px 16px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      cursor: pointer;
+      font-family: 'Poppins', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      transition: background 0.2s, transform 0.2s;
+    }
+
+    .quick-btn:hover {
+      background: rgba(255, 255, 255, 0.18);
+      transform: translateY(-2px);
+    }
+
+    .quick-icon {
+      font-size: 20px;
+    }
+
+    /* ── Footer ── */
+    .footer {
+      margin-top: 60px;
+      padding: 60px 40px 30px;
+      border-top: 1px solid var(--card-border);
+      background: rgba(15, 23, 42, 0.4);
+      backdrop-filter: blur(20px);
+      border-radius: 32px 32px 0 0;
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 40px;
+      margin-bottom: 50px;
+    }
+
+    .footer-col h4 {
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 20px;
+      color: #fff;
+    }
+
+    .footer-col ul {
+      list-style: none;
+    }
+
+    .footer-col ul li {
+      margin-bottom: 12px;
+    }
+
+    .footer-col ul li a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 13px;
+      transition: color 0.2s;
+    }
+
+    .footer-col ul li a:hover {
+      color: #fff;
+    }
+
+    .footer-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 30px;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .footer-logo {
+      font-size: 20px;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .footer-logo span {
+      color: var(--primary);
+    }
+
+    .footer-copy {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .footer-right {
+      display: flex;
+      gap: 24px;
+      align-items: center;
+    }
+
+    .lang-selector {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #fff;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 1100px) {
+      .stats-row {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .grid-2,
+      .grid-3 {
+        grid-template-columns: 1fr;
+      }
+
+      .footer-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        display: none;
+      }
+
+      .main {
+        margin-left: 0;
+        padding: 20px 18px;
+      }
+
+      .stats-row {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .footer-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .footer-bottom {
+        flex-direction: column;
+        gap: 20px;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <video class="bg-video" autoplay loop muted playsinline>
+    <source src="bg-video.mp4" type="video/mp4" />
+  </video>
+  <div class="bg-overlay"></div>
+
+  <div class="layout">
+
+    <!-- ── Sidebar ── -->
+    <aside class="sidebar">
+      <div class="sidebar-logo">Gyan<span>Swap</span></div>
+
+      <a href="Dashboard.html" class="nav-item active">
+        <span class="nav-icon">🏠</span> Dashboard
+      </a>
+      <a href="profile.html" class="nav-item">
+        <span class="nav-icon">👤</span> My Profile
+      </a>
+      <a href="search.html" class="nav-item">
+        <span class="nav-icon">🔍</span> Explore Skills
+      </a>
+      <a href="requests.html" class="nav-item">
+        <span class="nav-icon">🤝</span> Requests
+        <span class="nav-badge" id="requestsBadge" style="display:none;">0</span>
+      </a>
+      <a href="messages.html" class="nav-item">
+        <span class="nav-icon">💬</span> Messages
+        <span class="nav-badge" id="messagesBadge" style="display:none;">0</span>
+      </a>
+      <a href="sessions.html" class="nav-item">
+        <span class="nav-icon">📅</span> Sessions
+        <span class="nav-badge" id="sessionsBadge" style="display:none;">0</span>
+      </a>
+      <a href="#" class="nav-item">
+        <span class="nav-icon">⭐</span> Saved
+      </a>
+      <a href="settings.html" class="nav-item">
+        <span class="nav-icon">⚙️</span> Settings
+      </a>
+
+      <div class="sidebar-spacer"></div>
+
+      <div class="sidebar-footer">
+        <button class="logout-btn" id="logoutBtn">
+          <span>🚪</span> Sign Out
+        </button>
+      </div>
+    </aside>
+
+    <!-- ── Main content ── -->
+    <main class="main">
+
+      <!-- Top bar -->
+      <div class="topbar">
+        <div class="topbar-left">
+          <h2>Good morning 👋</h2>
+          <p id="userGreeting">Welcome back to GyanSwap</p>
+        </div>
+        <div class="topbar-right">
+          <a href="search.html" class="topbar-btn">🔍 Find Skills</a>
+          <a href="requests.html" class="topbar-btn primary">+ New Swap</a>
+          <div class="avatar" id="userAvatar" title="My Profile" onclick="window.location.href='profile.html'">?</div>
+        </div>
+      </div>
+
+      <!-- Stats row -->
+      <div class="stats-row anim-1">
+        <div class="stat-card">
+          <div class="stat-icon">🎓</div>
+          <div class="stat-label">SKILLS TEACHING</div>
+          <div class="stat-value" id="taughtCount">0</div>
+          <div class="stat-sub" id="taughtSub">+0 added this week</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">📚</div>
+          <div class="stat-label">SKILLS LEARNING</div>
+          <div class="stat-value" id="learnedCount">0</div>
+          <div class="stat-sub" id="learnedSub">0 in progress</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">🤝</div>
+          <div class="stat-label">SWAPS COMPLETED</div>
+          <div class="stat-value" id="completedSwapsCount">0</div>
+          <div class="stat-sub">View history</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">⭐</div>
+          <div class="stat-label">YOUR RATING</div>
+          <div class="stat-value" id="userRating">0.0</div>
+          <div class="stat-sub" id="ratingSub">No reviews yet</div>
+        </div>
+      </div>
+
+      <!-- Row: My Skills + Pending Requests -->
+      <div class="grid-2 anim-2">
+
+        <!-- My Skills -->
+        <div class="glass-card">
+          <div class="card-title">
+            My Skills
+            <a href="profile.html" class="card-title-link">Edit profile</a>
+          </div>
+
+          <div class="skill-section">
+            <div class="skill-section-label">🟢 I can teach</div>
+            <div class="skill-tags" id="skillsTeaching">
+              <!-- Dynamic skills will be loaded here -->
+              <button class="add-tag" onclick="window.location.href='profile.html'">+ Add skill</button>
+            </div>
+          </div>
+
+          <div class="skill-section">
+            <div class="skill-section-label">🔵 I want to learn</div>
+            <div class="skill-tags" id="skillsLearning">
+              <!-- Dynamic skills will be loaded here -->
+              <button class="add-tag" onclick="window.location.href='profile.html'">+ Add skill</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pending Requests -->
+        <div class="glass-card" style="display:flex; flex-direction:column; gap:20px;">
+          <div>
+            <div class="card-title">
+              Swap Requests
+              <a href="requests.html" class="card-title-link">View all</a>
+            </div>
+            <div id="pendingRequestsList">
+              <div style="padding: 10px; text-align: center; opacity: 0.5; font-size: 13px;">No pending requests</div>
+            </div>
+          </div>
+
+          <div style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px;">
+            <div class="card-title">
+              Session Invitations
+              <a href="sessions.html" class="card-title-link">Manage</a>
+            </div>
+            <div id="pendingSessionsList">
+              <div style="padding: 10px; text-align: center; opacity: 0.5; font-size: 13px;">No session invitations
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Row: Activity + People + Quick Actions -->
+      <div class="grid-3 anim-3">
+
+        <!-- Left: Activity feed -->
+        <div class="glass-card">
+          <div class="card-title">
+            Recent Activity
+            <a href="#" class="card-title-link">See all</a>
+          </div>
+
+          <div class="activity-item">
+            <div class="activity-dot">🤝</div>
+            <div>
+              <div class="activity-text"><strong>Study Complete</strong> with <strong>VIJAYA</strong> — Java Foundations
+                ↔ Machine Learning Basics</div>
+              <div class="activity-time">Just now</div>
+            </div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-dot">🤝</div>
+            <div>
+              <div class="activity-text"><strong>Swap completed</strong> with Arjun Mehta — Python ↔ Spanish</div>
+              <div class="activity-time">2 hours ago</div>
+            </div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-dot">⭐</div>
+            <div>
+              <div class="activity-text">You received a <strong>5-star review</strong> from Priya Sharma</div>
+              <div class="activity-time">Yesterday</div>
+            </div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-dot">📩</div>
+            <div>
+              <div class="activity-text"><strong>New request</strong> from Rohan Das for Guitar lessons</div>
+              <div class="activity-time">2 days ago</div>
+            </div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-dot">🎓</div>
+            <div>
+              <div class="activity-text">You added <strong>Photography</strong> as a skill you can teach</div>
+              <div class="activity-time">3 days ago</div>
+            </div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-dot">💬</div>
+            <div>
+              <div class="activity-text"><strong>Session scheduled</strong> with Meera Joshi — Graphic Design</div>
+              <div class="activity-time">4 days ago</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: People + Profile Completion + Quick Actions -->
+        <div style="display:flex; flex-direction:column; gap:18px;">
+
+          <!-- Profile Completion -->
+          <div class="glass-card" style="padding:22px 24px;">
+            <div class="card-title" style="margin-bottom:14px;">Profile Completion</div>
+            <div class="progress-row">
+              <div class="progress-label"><span>Overall</span><span>78%</span></div>
+              <div class="progress-track">
+                <div class="progress-fill" style="width:78%"></div>
+              </div>
+            </div>
+            <div class="progress-row">
+              <div class="progress-label"><span>Skills listed</span><span>90%</span></div>
+              <div class="progress-track">
+                <div class="progress-fill" style="width:90%"></div>
+              </div>
+            </div>
+            <div class="progress-row" style="margin-bottom:0">
+              <div class="progress-label"><span>Bio & photo</span><span>50%</span></div>
+              <div class="progress-track">
+                <div class="progress-fill" style="width:50%"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Actions -->
+          <div class="glass-card" style="padding:22px 24px;">
+            <div class="card-title" style="margin-bottom:14px;">Quick Actions</div>
+            <div class="quick-actions">
+              <a href="search.html" class="quick-btn"><span class="quick-icon">🔍</span>Find Skills</a>
+              <a href="requests.html" class="quick-btn"><span class="quick-icon">🤝</span>Swap Request</a>
+              <a href="profile.html" class="quick-btn"><span class="quick-icon">👤</span>Edit Profile</a>
+              <a href="#" class="quick-btn"><span class="quick-icon">💬</span>Messages</a>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- People to connect -->
+      <div class="glass-card anim-4">
+        <div class="card-title">
+          People You Might Like
+          <div style="display: flex; gap: 10px; align-items: center;">
+            <a href="javascript:void(0)" onclick="seedPlatformUsers()"
+              style="font-size: 10px; color: var(--text-muted); text-decoration: underline;">Seed Mock Data</a>
+            <a href="search.html" class="card-title-link">Explore more</a>
+          </div>
+        </div>
+        <div class="people-grid" style="grid-template-columns: repeat(4,1fr); gap:14px;">
+          <div class="person-card">
+            <div class="person-av" style="background:linear-gradient(135deg,#f093fb,#f5576c)">V</div>
+            <div class="person-name">VIJAYA</div>
+            <div class="person-skill">Teaches: Java, Python · Wants: ML</div>
+            <button class="connect-btn">Connect</button>
+          </div>
+          <div class="person-card">
+            <div class="person-av" style="background:linear-gradient(135deg,#4facfe,#00f2fe)">L</div>
+            <div class="person-name">LAXMI</div>
+            <div class="person-skill">Teaches: Design · Wants: UI/UX</div>
+            <button class="connect-btn">Connect</button>
+          </div>
+          <div class="person-card">
+            <div class="person-av" style="background:linear-gradient(135deg,#43e97b,#38f9d7)">S</div>
+            <div class="person-name">SUBODH</div>
+            <div class="person-skill">Teaches: React JS · Wants: Node.js</div>
+            <button class="connect-btn">Connect</button>
+          </div>
+          <div class="person-card">
+            <div class="person-av" style="background:linear-gradient(135deg,#fa709a,#fee140)">D</div>
+            <div class="person-name">DIYA</div>
+            <div class="person-skill">Teaches: Photo · Wants: Video</div>
+            <button class="connect-btn">Connect</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <footer class="footer anim-5">
+        <div class="footer-grid">
+          <div class="footer-col">
+            <h4>Top Exchange Skills</h4>
+            <ul>
+              <li><a href="#">Artificial Intelligence</a></li>
+              <li><a href="#">Digital Marketing</a></li>
+              <li><a href="#">Language Immersion</a></li>
+              <li><a href="#">UI/UX Design</a></li>
+              <li><a href="#">Public Speaking</a></li>
+            </ul>
+          </div>
+          <div class="footer-col">
+            <h4>Community Hub</h4>
+            <ul>
+              <li><a href="#">Success Stories</a></li>
+              <li><a href="#">Help & Support</a></li>
+              <li><a href="#">Safety & Trust</a></li>
+              <li><a href="#">Code of Conduct</a></li>
+              <li><a href="#">Skill Events</a></li>
+            </ul>
+          </div>
+          <div class="footer-col">
+            <h4>Learn & Teach</h4>
+            <ul>
+              <li><a href="#">How it Works</a></li>
+              <li><a href="#">Expert Verification</a></li>
+              <li><a href="#">Online Sessions</a></li>
+              <li><a href="#">Reputation Guide</a></li>
+              <li><a href="#">Privacy Matters</a></li>
+            </ul>
+          </div>
+          <div class="footer-col">
+            <h4>Legal & Company</h4>
+            <ul>
+              <li><a href="#">Mission Statement</a></li>
+              <li><a href="#">Our Team</a></li>
+              <li><a href="#">Careers</a></li>
+              <li><a href="#">Contact Us</a></li>
+              <li><a href="#">Terms of Service</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <div class="footer-logo">Gyan<span>Swap</span></div>
+          <div class="footer-copy">© 2026 GyanSwap, Inc. All rights reserved.</div>
+          <div class="footer-right">
+            <div class="lang-selector">🌐 English</div>
+          </div>
+        </div>
+      </footer>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import {
+      getAuth, onAuthStateChanged, signOut
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import {
+      getFirestore, doc, getDoc, collection, query, where, onSnapshot, updateDoc, serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const app = initializeApp({
+      apiKey: "AIzaSyBq-BrrT0N4lszLMHowVkk12jit96t7sis",
+      authDomain: "gyan-swap.firebaseapp.com",
+      projectId: "gyan-swap",
+      storageBucket: "gyan-swap.firebasestorage.app",
+      messagingSenderId: "111231263033",
+      appId: "1:111231263033:web:05d8e6166a06c57d57c8e8"
+    });
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // Greetings by time
+    const hour = new Date().getHours();
+    const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+
+    function listenForSessions(uid) {
+      const q = query(collection(db, "sessions"), where("participants", "array-contains", uid));
+      onSnapshot(q, (snapshot) => {
+        const badge = document.getElementById('sessionsBadge');
+        const list = document.getElementById('pendingSessionsList');
+
+        const incomingSessions = snapshot.docs
+          .map(d => ({ id: d.id, ...d.data() }))
+          .filter(d => d.status === 'pending' && d.createdBy !== uid);
+
+        if (badge) {
+          badge.textContent = incomingSessions.length;
+          badge.style.display = incomingSessions.length > 0 ? 'inline-block' : 'none';
+        }
+
+        if (list) {
+          if (incomingSessions.length === 0) {
+            list.innerHTML = '<div style="padding: 10px; text-align: center; opacity: 0.5; font-size: 13px;">No session invitations</div>';
+            return;
+          }
+          list.innerHTML = '';
+          incomingSessions.forEach(sess => {
+            const item = document.createElement('div');
+            item.className = 'request-item';
+            const partnerName = sess.participantNames[sess.createdBy] || 'User';
+            const init = partnerName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+
+            item.innerHTML = `
+              <div class="req-avatar" style="width:34px;height:34px;font-size:12px">${init}</div>
+              <div class="req-info">
+                <div class="req-name">${partnerName}</div>
+                <div class="req-skill">Study: ${sess.skillName}</div>
+              </div>
+              <div class="req-actions">
+                <button class="req-btn accept" onclick="window.location.href='sessions.html'" style="padding:4px 10px;font-size:10px">View</button>
+              </div>
+            `;
+            list.appendChild(item);
+          });
+        }
+      });
+    }
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.href = 'registration.html';
+        return;
+      }
+      const name = user.displayName || user.email.split('@')[0];
+      const initials = name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+
+      document.querySelector('.topbar-left h2').textContent = `${greeting} ${name.split(' ')[0]} 👋`;
+      document.getElementById('userGreeting').textContent = `Welcome back to GyanSwap`;
+      document.getElementById('userAvatar').textContent = initials;
+
+      // Load detailed profile from Firestore
+      const userDoc = await getDoc(doc(db, 'users', user.uid));
+      if (userDoc.exists()) {
+        const userData = userDoc.data();
+        if (userData.displayName) {
+          document.querySelector('.topbar-left h2').textContent = `${greeting} ${userData.displayName.split(' ')[0]} 👋`;
+          const init = userData.displayName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+          document.getElementById('userAvatar').textContent = init;
+        }
+
+        const photoURL = userData.photoURL || user.photoURL;
+        if (photoURL) {
+          document.getElementById('userAvatar').innerHTML = `<img src="${photoURL}" alt="Profile">`;
+        }
+
+        // Populate skills
+        renderSkills('skillsTeaching', userData.skillsKnown || [], 'teach');
+        renderSkills('skillsLearning', userData.skillsWanted || [], 'learn');
+
+        // Populate dynamic stats
+        if (document.getElementById('taughtCount')) {
+          document.getElementById('taughtCount').textContent = userData.skillsTaughtCount || 0;
+          document.getElementById('taughtSub').textContent = `Total skills taught`;
+        }
+        if (document.getElementById('learnedCount')) {
+          document.getElementById('learnedCount').textContent = userData.skillsLearnedCount || 0;
+          document.getElementById('learnedSub').textContent = `Total skills learned`;
+        }
+        if (document.getElementById('completedSwapsCount')) {
+          document.getElementById('completedSwapsCount').textContent = userData.swapsCompletedCount || 0;
+        }
+        if (document.getElementById('userRating')) {
+          const rating = userData.reliabilityRating || 0;
+          document.getElementById('userRating').textContent = rating.toFixed(1);
+          document.getElementById('ratingSub').textContent = `Reliability Score`;
+        }
+
+        // Listen for swap requests
+        listenForRequests(user.uid);
+        // Listen for sessions
+        listenForSessions(user.uid);
+      }
+    });
+
+    function listenForRequests(uid) {
+      const q = query(collection(db, "swap_requests"), where("toUid", "==", uid), where("status", "==", "pending"));
+      onSnapshot(q, (snapshot) => {
+        // Update Sidebar Badge
+        const badge = document.getElementById('requestsBadge');
+        if (badge) {
+          badge.textContent = snapshot.size;
+          badge.style.display = snapshot.empty ? 'none' : 'inline-block';
+        }
+
+        // Update Dashboard List
+        const list = document.getElementById('pendingRequestsList');
+        if (list) {
+          if (snapshot.empty) {
+            list.innerHTML = '<div style="padding: 20px; text-align: center; opacity: 0.5; font-size: 13px;">No pending requests</div>';
+            return;
+          }
+          list.innerHTML = '';
+          snapshot.forEach((doc) => {
+            const req = doc.data();
+            renderRequestItem(doc.id, req);
+          });
+        }
+      });
+    }
+
+    function renderRequestItem(requestId, data) {
+      const item = document.createElement('div');
+      item.className = 'request-item';
+      const init = data.fromName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+
+      item.innerHTML = `
+      <div class="req-avatar">${data.fromPhoto ? `<img src="${data.fromPhoto}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">` : init}</div>
+      <div class="req-info">
+        <div class="req-name">${data.fromName}</div>
+        <div class="req-skill">Requested: ${data.skill}</div>
+      </div>
+      <div class="req-actions">
+        <button class="req-btn accept" onclick="handleRequest('${requestId}', 'accepted')">✓</button>
+        <button class="req-btn decline" onclick="handleRequest('${requestId}', 'rejected')">✕</button>
+      </div>
+    `;
+      document.getElementById('pendingRequestsList').appendChild(item);
+    }
+
+    window.handleRequest = async (requestId, newStatus) => {
+      try {
+        await updateDoc(doc(db, "swap_requests", requestId), {
+          status: newStatus,
+          handledAt: serverTimestamp()
+        });
+        if (newStatus === 'accepted') alert("Request accepted! You can now start a chat.");
+      } catch (err) {
+        console.error("Error handling request:", err);
+        alert("Action failed: " + err.message);
+      }
+    };
+
+    function renderSkills(containerId, skills, type) {
+      const container = document.getElementById(containerId);
+      // Keep the "Add skill" button
+      const addButton = container.querySelector('.add-tag');
+      container.innerHTML = '';
+
+      skills.forEach(skill => {
+        const span = document.createElement('span');
+        span.className = `skill-tag ${type}`;
+        span.textContent = skill;
+        container.appendChild(span);
+      });
+
+      container.appendChild(addButton);
+    }
+
+    // Logout
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+      await signOut(auth);
+      window.location.href = 'registration.html';
+    });
+
+    // Seeding Logic for the 20 Students
+    window.seedPlatformUsers = async () => {
+      if (!confirm("Add 20 student profiles to your platform?")) return;
+
+      const students = [
+        { name: "VIJAYA", email: "vijaya@gmail.com", teach: ["Java", "Python"], learn: ["Machine Learning"] },
+        { name: "LAXMI", email: "laxmi@gmail.com", teach: ["Graphic Design"], learn: ["UI/UX"] },
+        { name: "MATHILI", email: "mathili@gmail.com", teach: ["Spanish"], learn: ["French"] },
+        { name: "MUSKAN", email: "muskan@gmail.com", teach: ["Public Speaking"], learn: ["Content Writing"] },
+        { name: "SUBODH", email: "subodha@gmail.com", teach: ["React JS"], learn: ["Node.js"] },
+        { name: "SUMEDHA", email: "sumedha@gmail.com", teach: ["Yoga"], learn: ["Mindfulness"] },
+        { name: "PRANALI", email: "pranali@gmail.com", teach: ["Excel Analysis"], learn: ["VBA"] },
+        { name: "VIJAY", email: "vijaya@gmail.com", teach: ["Guitar"], learn: ["Piano"] },
+        { name: "SANJAY", email: "sanjay@gmail.com", teach: ["Digital Marketing"], learn: ["SEO"] },
+        { name: "MAMONI", email: "mamoni@gmail.com", teach: ["Cooking"], learn: ["Nutrition"] },
+        { name: "DIYA", email: "diya@gmail.com", teach: ["Photography"], learn: ["Video Editing"] },
+        { name: "NISHA", email: "nlsha@gmail.com", teach: ["Math/Calculus"], learn: ["Physics"] },
+        { name: "KINJAL", email: "kingal@gmail.com", teach: ["Chess"], learn: ["Strategy"] },
+        { name: "SHRUSTI", email: "shrusti@gmail.com", teach: ["Dancing"], learn: ["Choreography"] },
+        { name: "NIKITA", email: "nikita@gmail.com", teach: ["Java"], learn: ["App Development"] },
+        { name: "DHANSHREE", email: "dhan@gmail.com", teach: ["Painting"], learn: ["Sketching"] },
+        { name: "SHUBHANGI", email: "shubhangi@gmail.com", teach: ["English Grammar"], learn: ["IELTS"] },
+        { name: "NAITIK", email: "naitik@gmail.com", teach: ["Cyber Security"], learn: ["Ethical Hacking"] },
+        { name: "ATHARV", email: "atharv@gmail.com", teach: ["Robotics"], learn: ["Arduino"] },
+        { name: "MANISH", email: "manish@gmail.com", teach: ["Gardening"], learn: ["Landscaping"] }
+      ];
+
+      try {
+        for (const s of students) {
+          const mockId = "mock_" + s.name.toLowerCase() + "_" + Date.now().toString().slice(-4);
+          await setDoc(doc(db, "users", mockId), {
+            displayName: s.name,
+            email: s.email,
+            skillsKnown: s.teach,
+            skillsWanted: s.learn,
+            reliabilityRating: 4.5 + Math.random() * 0.5,
+            skillsTaughtCount: Math.floor(Math.random() * 10),
+            skillsLearnedCount: Math.floor(Math.random() * 10),
+            swapsCompletedCount: Math.floor(Math.random() * 15),
+            createdAt: serverTimestamp(),
+            isMock: true
+          });
+        }
+        alert("Success! 20 student profiles have been added to your platform.");
+        window.location.reload();
+      } catch (err) {
+        console.error("Seeding failed:", err);
+        alert("Failed to seed users: " + err.message);
+      }
+    };
+  </script>
+
+</body>
+
+</html>

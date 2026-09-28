@@ -1,0 +1,1332 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GyanSwap – Settings</title>
+  <meta name="description" content="Manage your GyanSwap account, privacy, and preferences." />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet" />
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --primary: #6366f1;
+      --primary-glow: rgba(99, 102, 241, 0.3);
+      --secondary: #4f46e5;
+      --accent: #10b981;
+      --accent-glow: rgba(16, 185, 129, 0.3);
+      --accent-soft: #d1fae5;
+      --sidebar-w: 260px;
+      --bg-dark: #0f172a;
+      --bg-slate: #1e293b;
+      --card-bg: rgba(30, 41, 59, 0.5);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --glass-bg: rgba(255, 255, 255, 0.03);
+      --glass-border: rgba(255, 255, 255, 0.1);
+    }
+
+    ::selection {
+      background: var(--primary);
+      color: #fff;
+    }
+
+    html,
+    body {
+      min-height: 100vh;
+      font-family: 'Poppins', sans-serif;
+      background: radial-gradient(circle at top left, #1e293b 0%, #0f172a 100%);
+      color: var(--text);
+      overflow-x: hidden;
+      line-height: 1.5;
+    }
+
+    /* ── Layout ── */
+    .layout {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* ── Sidebar (Reused) ── */
+    .sidebar {
+      width: var(--sidebar-w);
+      flex-shrink: 0;
+      background: var(--bg-dark);
+      border-right: 1px solid var(--card-border);
+      display: flex;
+      flex-direction: column;
+      padding: 32px 0;
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100vh;
+      z-index: 10;
+      box-shadow: 10px 0 30px rgba(0, 0, 0, 0.2);
+    }
+
+    .sidebar-logo {
+      padding: 0 32px 32px;
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      margin-bottom: 24px;
+      color: #fff;
+    }
+
+    .sidebar-logo span {
+      color: var(--primary);
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 12px 32px;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      position: relative;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      cursor: pointer;
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left;
+      margin: 2px 0;
+    }
+
+    .nav-item:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.04);
+      padding-left: 36px;
+    }
+
+    .nav-item.active {
+      color: #fff;
+      background: linear-gradient(90deg, rgba(99, 102, 241, 0.15) 0%, transparent 100%);
+      font-weight: 600;
+    }
+
+    .nav-item.active::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      background: var(--primary);
+      box-shadow: 0 0 15px var(--primary-glow);
+    }
+
+    .nav-icon {
+      font-size: 20px;
+      width: 24px;
+      text-align: center;
+      flex-shrink: 0;
+      opacity: 0.7;
+      transition: opacity 0.2s;
+    }
+
+    .nav-item:hover .nav-icon,
+    .nav-item.active .nav-icon {
+      opacity: 1;
+    }
+
+    .sidebar-footer {
+      padding: 32px 24px;
+      border-top: 1px solid var(--card-border);
+      margin-top: auto;
+    }
+
+    .logout-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      width: 100%;
+      padding: 14px;
+      border-radius: 14px;
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.2);
+      color: #fca5a5;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-family: inherit;
+    }
+
+    .logout-btn:hover {
+      background: #ef4444;
+      border-color: #ef4444;
+      color: #fff;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(239, 68, 68, 0.3);
+    }
+
+    /* ── Main Content ── */
+    .main {
+      margin-left: var(--sidebar-w);
+      flex: 1;
+      padding: 40px 60px;
+      min-height: 100vh;
+      max-width: 1200px;
+    }
+
+    .header-section {
+      margin-bottom: 40px;
+      animation: fadeUp 0.6s ease;
+    }
+
+    .header-section h1 {
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: -1px;
+      margin-bottom: 8px;
+    }
+
+    .header-section p {
+      color: var(--text-muted);
+      font-size: 15px;
+    }
+
+    /* ── Settings Sections ── */
+    .settings-grid {
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      gap: 40px;
+      animation: fadeUp 0.8s ease backwards;
+    }
+
+    .settings-nav {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .settings-nav-item {
+      padding: 12px 20px;
+      border-radius: 12px;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 15px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid transparent;
+    }
+
+    .settings-nav-item:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    .settings-nav-item.active {
+      color: #fff;
+      background: var(--primary);
+      box-shadow: 0 4px 15px var(--primary-glow);
+    }
+
+    /* ── Glass Card (Reused & Refined) ── */
+    .glass-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 24px;
+      padding: 32px;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+      margin-bottom: 24px;
+    }
+
+    .card-title {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 24px;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    /* ── UI Elements ── */
+    .setting-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 0;
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    .setting-row:last-child {
+      border-bottom: none;
+    }
+
+    .setting-info h4 {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .setting-info p {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .toggle-switch {
+      position: relative;
+      display: inline-block;
+      width: 44px;
+      height: 24px;
+    }
+
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(255, 255, 255, 0.1);
+      transition: .4s;
+      border-radius: 24px;
+      border: 1px solid var(--card-border);
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 2px;
+      bottom: 2px;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
+    }
+
+    input:checked+.slider {
+      background-color: var(--primary);
+      border-color: var(--primary);
+    }
+
+    input:checked+.slider:before {
+      transform: translateX(20px);
+    }
+
+    .select-input,
+    .text-input {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      color: #fff;
+      padding: 10px 14px;
+      font-family: inherit;
+      font-size: 14px;
+      outline: none;
+      transition: all 0.3s;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      background-size: 16px;
+      padding-right: 40px;
+    }
+
+    .select-input option {
+      background-color: var(--bg-slate);
+      color: #fff;
+    }
+
+    .select-input:focus,
+    .text-input:focus {
+      border-color: var(--primary);
+      background: rgba(255, 255, 255, 0.08);
+      box-shadow: 0 0 0 3px var(--primary-glow);
+    }
+
+    .danger-btn {
+      background: rgba(239, 68, 68, 0.1);
+      color: #fca5a5;
+      border: 1px solid rgba(239, 68, 68, 0.2);
+      padding: 10px 20px;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .danger-btn:hover {
+      background: #ef4444;
+      color: white;
+      box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+    }
+
+    .badge-verified {
+      background: rgba(16, 185, 129, 0.1);
+      color: var(--accent);
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+      border: 1px solid var(--accent-glow);
+    }
+
+    /* ── Modal ── */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(8px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .modal-card {
+      background: var(--bg-slate);
+      border: 1px solid var(--card-border);
+      border-radius: 24px;
+      padding: 32px;
+      width: 90%;
+      max-width: 450px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+      animation: scaleUp 0.3s ease;
+    }
+
+    .modal-card h3 {
+      font-size: 20px;
+      margin-bottom: 12px;
+    }
+
+    .modal-card p {
+      color: var(--text-muted);
+      font-size: 14px;
+      margin-bottom: 20px;
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+    @keyframes scaleUp {
+      from {
+        transform: scale(0.95);
+        opacity: 0;
+      }
+
+      to {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    /* ── Footer ── */
+    .footer {
+      margin-top: 60px;
+      padding: 60px 40px 30px;
+      border-top: 1px solid var(--card-border);
+      background: rgba(15, 23, 42, 0.4);
+      backdrop-filter: blur(20px);
+      border-radius: 32px 32px 0 0;
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 40px;
+      margin-bottom: 50px;
+    }
+
+    .footer-col h4 {
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 20px;
+      color: #fff;
+    }
+
+    .footer-col ul {
+      list-style: none;
+    }
+
+    .footer-col ul li {
+      margin-bottom: 12px;
+    }
+
+    .footer-col ul li a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 13px;
+      transition: color 0.2s;
+    }
+
+    .footer-col ul li a:hover {
+      color: #fff;
+    }
+
+    .footer-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 30px;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .footer-logo {
+      font-size: 20px;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .footer-logo span {
+      color: var(--primary);
+    }
+
+    .footer-copy {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .footer-right {
+      display: flex;
+      gap: 24px;
+      align-items: center;
+    }
+
+    .lang-selector {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #fff;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    @media (max-width: 1100px) {
+      .footer-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .footer-grid {
+        grid-template-columns: 1fr;
+      }
+      .footer-bottom {
+        flex-direction: column;
+        gap: 20px;
+        text-align: center;
+      }
+    }
+
+    /* ── Footer ── */
+    .footer {
+      margin-top: 60px;
+      padding: 60px 40px 30px;
+      border-top: 1px solid var(--card-border);
+      background: rgba(15, 23, 42, 0.4);
+      backdrop-filter: blur(20px);
+      border-radius: 32px 32px 0 0;
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 40px;
+      margin-bottom: 50px;
+    }
+
+    .footer-col h4 {
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 20px;
+      color: #fff;
+    }
+
+    .footer-col ul {
+      list-style: none;
+    }
+
+    .footer-col ul li {
+      margin-bottom: 12px;
+    }
+
+    .footer-col ul li a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 13px;
+      transition: color 0.2s;
+    }
+
+    .footer-col ul li a:hover {
+      color: #fff;
+    }
+
+    .footer-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 30px;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .footer-logo {
+      font-size: 20px;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .footer-logo span {
+      color: var(--primary);
+    }
+
+    .footer-copy {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .footer-right {
+      display: flex;
+      gap: 24px;
+      align-items: center;
+    }
+
+    .lang-selector {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #fff;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    @media (max-width: 1100px) {
+      .footer-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .footer-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .footer-bottom {
+        flex-direction: column;
+        gap: 20px;
+        text-align: center;
+      }
+    }
+
+    /* ── Footer ── */
+    .footer {
+      margin-top: 60px;
+      padding: 60px 40px 30px;
+      border-top: 1px solid var(--card-border);
+      background: rgba(15, 23, 42, 0.4);
+      backdrop-filter: blur(20px);
+      border-radius: 32px 32px 0 0;
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 40px;
+      margin-bottom: 50px;
+    }
+
+    .footer-col h4 {
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 20px;
+      color: #fff;
+    }
+
+    .footer-col ul {
+      list-style: none;
+    }
+
+    .footer-col ul li {
+      margin-bottom: 12px;
+    }
+
+    .footer-col ul li a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 13px;
+      transition: color 0.2s;
+    }
+
+    .footer-col ul li a:hover {
+      color: #fff;
+    }
+
+    .footer-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 30px;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .footer-logo {
+      font-size: 20px;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .footer-logo span {
+      color: var(--primary);
+    }
+
+    .footer-copy {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .footer-right {
+      display: flex;
+      gap: 24px;
+      align-items: center;
+    }
+
+    .lang-selector {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #fff;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    @media (max-width: 1100px) {
+      .footer-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .footer-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .footer-bottom {
+        flex-direction: column;
+        gap: 20px;
+        text-align: center;
+      }
+    }
+
+    /* ── Animations ── */
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 900px) {
+      .settings-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .settings-nav {
+        flex-direction: row;
+        overflow-x: auto;
+        padding-bottom: 10px;
+      }
+
+      .settings-nav-item {
+        white-space: nowrap;
+      }
+
+      .main {
+        padding: 30px 20px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="layout">
+    <!-- Sidebar (Reused from Dashboard) -->
+    <aside class="sidebar">
+      <div class="sidebar-logo">Gyan<span>Swap</span></div>
+      <a href="Dashboard.html" class="nav-item">
+        <span class="nav-icon">🏠</span> Dashboard
+      </a>
+      <a href="profile.html" class="nav-item">
+        <span class="nav-icon">👤</span> My Profile
+      </a>
+      <a href="search.html" class="nav-item">
+        <span class="nav-icon">🔍</span> Explore Skills
+      </a>
+      <a href="requests.html" class="nav-item">
+        <span class="nav-icon">🤝</span> Requests
+      </a>
+      <a href="messages.html" class="nav-item">
+        <span class="nav-icon">💬</span> Messages
+      </a>
+      <a href="sessions.html" class="nav-item">
+        <span class="nav-icon">📅</span> Sessions
+      </a>
+      <a href="#" class="nav-item">
+        <span class="nav-icon">⭐</span> Saved
+      </a>
+      <a href="settings.html" class="nav-item active">
+        <span class="nav-icon">⚙️</span> Settings
+      </a>
+      <div class="sidebar-spacer"></div>
+      <div class="sidebar-footer">
+        <button class="logout-btn" id="logoutBtn">
+          <span>🚪</span> Sign Out
+        </button>
+      </div>
+    </aside>
+
+    <main class="main">
+      <div class="header-section">
+        <h1>Settings</h1>
+        <p>Manage your account, privacy, and preferences to customize your GyanSwap experience.</p>
+      </div>
+
+      <div class="settings-grid">
+        <nav class="settings-nav">
+          <a href="#account" class="settings-nav-item active">Account Settings</a>
+          <a href="#privacy" class="settings-nav-item">Privacy Settings</a>
+          <a href="#notifications" class="settings-nav-item">Notifications</a>
+          <a href="#communication" class="settings-nav-item">Communication</a>
+          <a href="#skills" class="settings-nav-item">Skill Preferences</a>
+        </nav>
+
+        <div class="settings-content">
+          <!-- 1. Account Settings -->
+          <section id="account" class="glass-card">
+            <h2 class="card-title">👤 Account Settings</h2>
+            <div class="setting-row">
+              <div class="setting-info">
+                <h4>Account Verification</h4>
+                <p>Verify your identity via email or phone to build trust.</p>
+              </div>
+              <span class="badge-verified">Verified ✓</span>
+            </div>
+            <div class="setting-row">
+              <div class="setting-info">
+                <h4>Delete Account</h4>
+                <p>Permanently remove your account and all data. This action is irreversible.</p>
+              </div>
+              <button class="danger-btn">Delete Account</button>
+            </div>
+          </section>
+
+          <!-- 2. Privacy Settings -->
+          <section id="privacy" class="glass-card">
+            <h2 class="card-title">🔒 Privacy Settings</h2>
+            <div class="setting-row">
+              <div class="setting-info">
+                <h4>Profile Visibility</h4>
+                <p>Control who can see your profile information.</p>
+              </div>
+              <select class="select-input" data-key="profileVisibility">
+                <option value="public">Public</option>
+                <option value="private">Private</option>
+                <option value="members">Only Members</option>
+              </select>
+            </div>
+            <div class="setting-row">
+              <div class="setting-info">
+                <h4>Show Contact Info</h4>
+                <p>Show or hide your email and phone number on your profile.</p>
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox" checked data-key="showContactInfo">
+                <span class="slider"></span>
+              </label>
+            </div>
+            <div class="setting-row">
+              <div class="setting-info">
+                <h4>Who can send requests</h4>
+                <p>Filter swap invitations based on user type.</p>
+              </div>
+              <select class="select-input" data-key="whoCanSendRequests">
+                <option value="everyone">Everyone</option>
+                <option value="friends">Friends Only</option>
+                <option value="verified">Verified Users</option>
+              </select>
+            </div>
+            <div class="setting-row">
+              <div class="setting-info">
+                <h4>Activity Status</h4>
+                <p>Hide your online/offline status from others.</p>
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox" data-key="hideActivityStatus">
+                <span class="slider"></span>
+              </label>
+            </div>
+            <div class="setting-row">
+              <div class="setting-info">
+                <h4>Blocked Users</h4>
+                <p>Manage users you have blocked from communicating.</p>
+              </div>
+              <button class="topbar-btn">Manage Block List</button>
+            </div>
+          </section>
+
+          <!-- 3. Notifications -->
+          <section id="notifications" class="glass-card">
+            <h2 class="card-title">🔔 Notification Settings</h2>
+            <div class="setting-row">
+              <div class="setting-info">
+                <h4>Email Notifications</h4>
+                <p>Receive updates and alerts via email.</p>
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox" checked data-key="emailNotifications">
+                <span class="slider"></span>
+              </label>
+            </div>
+            <div class="setting-row">
+              <div class="setting-info">
+                <h4>Push Notifications</h4>
+                <p>Receive real-time alerts on your device.</p>
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox" checked data-key="pushNotifications">
+                <span class="slider"></span>
+              </label>
+            </div>
+            <div style="margin-top: 20px;">
+              <h4 style="font-size: 14px; margin-bottom: 12px; color: var(--text-muted)">Notify me about:</h4>
+              <div class="setting-row">
+                <div class="setting-info">
+                  <h4>New Skill Requests</h4>
+                </div>
+                <label class="toggle-switch"><input type="checkbox" checked data-key="notifyNewRequests"><span
+                    class="slider"></span></label>
+              </div>
+              <div class="setting-row">
+                <div class="setting-info">
+                  <h4>Messages</h4>
+                </div>
+                <label class="toggle-switch"><input type="checkbox" checked data-key="notifyMessages"><span
+                    class="slider"></span></label>
+              </div>
+              <div class="setting-row">
+                <div class="setting-info">
+                  <h4>Skill Matches</h4>
+                </div>
+                <label class="toggle-switch"><input type="checkbox" checked data-key="notifyMatches"><span
+                    class="slider"></span></label>
+              </div>
+              <div class="setting-row">
+                <div class="setting-info">
+                  <h4>Comments & Reviews</h4>
+                </div>
+                <label class="toggle-switch"><input type="checkbox" checked data-key="notifyReviews"><span
+                    class="slider"></span></label>
+              </div>
+            </div>
+            <div class="setting-row" style="margin-top: 10px;">
+              <div class="setting-info">
+                <h4>Quiet Hours</h4>
+                <p>Silence notifications during specific times.</p>
+              </div>
+              <button class="topbar-btn" onclick="openModal('quietHoursModal')">Configure</button>
+            </div>
+          </section>
+
+          <!-- 4. Communication -->
+          <section id="communication" class="glass-card">
+            <h2 class="card-title">💬 Communication Settings</h2>
+            <div class="setting-row">
+              <div class="setting-info">
+                <h4>Enable Chat</h4>
+                <p>Allow other users to message you directly.</p>
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox" checked data-key="enableChat">
+                <span class="slider"></span>
+              </label>
+            </div>
+            <div class="setting-row">
+              <div class="setting-info">
+                <h4>Voice/Video Calls</h4>
+                <p>Allow requests for voice or video sessions (Online Only).</p>
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox" id="voiceCallsToggle" checked data-key="voiceCalls">
+                <span class="slider"></span>
+              </label>
+            </div>
+            <div class="setting-row">
+              <div class="setting-info">
+                <h4>Auto-Reply</h4>
+                <p>Set an automatic response when you are busy.</p>
+              </div>
+              <button class="topbar-btn" onclick="openModal('autoReplyModal')">Set Message</button>
+            </div>
+            <div class="setting-row">
+              <div class="setting-info">
+                <h4>Spam Filter</h4>
+                <p>Automatically move suspicious messages to spam.</p>
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox" checked data-key="spamFilter">
+                <span class="slider"></span>
+              </label>
+            </div>
+          </section>
+
+          <!-- 5. Skill Preferences -->
+          <section id="skills" class="glass-card">
+            <h2 class="card-title">🎯 Skill Preferences</h2>
+            <div class="setting-row">
+              <div class="setting-info">
+                <h4>Skill Management</h4>
+                <p>Add, remove, or update your teaching and learning skills.</p>
+              </div>
+              <button class="topbar-btn" onclick="window.location.href='profile.html'">Update Skills</button>
+            </div>
+            <div class="setting-row">
+              <div class="setting-info">
+                <h4>Preferred Experience Level</h4>
+                <p>Select your target skill level for exchanges.</p>
+              </div>
+              <select class="select-input" id="experienceLevelSelect" data-key="experienceLevel">
+                <option value="beginner">Beginner</option>
+                <option value="intermediate">Intermediate</option>
+                <option value="advanced">Advanced</option>
+                <option value="expert">Expert</option>
+              </select>
+            </div>
+            <div class="setting-row">
+              <div class="setting-info">
+                <h4>Availability</h4>
+                <p>Set your preferred time slots for skill exchange.</p>
+              </div>
+              <button class="topbar-btn">Manage Schedule</button>
+            </div>
+            <div class="setting-row">
+              <div class="setting-info">
+                <h4>Mode of Exchange</h4>
+                <p>Choose how you prefer to connect with others. (Note: Only Online mode is supported currently).</p>
+              </div>
+              <div style="display: flex; gap: 10px;">
+                <label style="display: flex; align-items: center; gap: 6px; font-size: 14px;">
+                  <input type="checkbox" checked disabled> Online
+                </label>
+                <label style="display: flex; align-items: center; gap: 6px; font-size: 14px; opacity: 0.5;">
+                  <input type="checkbox" disabled> Offline
+                </label>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <footer class="footer">
+        <div class="footer-grid">
+          <div class="footer-col">
+            <h4>Top Exchange Skills</h4>
+            <ul>
+              <li><a href="#">Artificial Intelligence</a></li>
+              <li><a href="#">Digital Marketing</a></li>
+              <li><a href="#">Language Immersion</a></li>
+              <li><a href="#">UI/UX Design</a></li>
+              <li><a href="#">Public Speaking</a></li>
+            </ul>
+          </div>
+          <div class="footer-col">
+            <h4>Community Hub</h4>
+            <ul>
+              <li><a href="#">Success Stories</a></li>
+              <li><a href="#">Help & Support</a></li>
+              <li><a href="#">Safety & Trust</a></li>
+              <li><a href="#">Code of Conduct</a></li>
+              <li><a href="#">Skill Events</a></li>
+            </ul>
+          </div>
+          <div class="footer-col">
+            <h4>Learn & Teach</h4>
+            <ul>
+              <li><a href="#">How it Works</a></li>
+              <li><a href="#">Expert Verification</a></li>
+              <li><a href="#">Online Sessions</a></li>
+              <li><a href="#">Reputation Guide</a></li>
+              <li><a href="#">Privacy Matters</a></li>
+            </ul>
+          </div>
+          <div class="footer-col">
+            <h4>Legal & Company</h4>
+            <ul>
+              <li><a href="#">Mission Statement</a></li>
+              <li><a href="#">Our Team</a></li>
+              <li><a href="#">Careers</a></li>
+              <li><a href="#">Contact Us</a></li>
+              <li><a href="#">Terms of Service</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <div class="footer-logo">Gyan<span>Swap</span></div>
+          <div class="footer-copy">© 2026 GyanSwap, Inc. All rights reserved.</div>
+          <div class="footer-right">
+            <div class="lang-selector">🌐 English</div>
+          </div>
+        </div>
+      </footer>
+    </main>
+  </div>
+
+  <!-- Block User Modal -->
+  <div class="modal-overlay" id="blockModal">
+    <div class="modal-card">
+      <h3>🚫 Block User</h3>
+      <p>Please provide a valid reason for blocking this user. This helps us maintain a safe community.</p>
+      <div style="margin-bottom: 12px;">
+        <label style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 6px;">Name/UID of
+          user:</label>
+        <input type="text" class="text-input" style="width: 100%;" id="blockUserInput" placeholder="Enter name or UID">
+      </div>
+      <div>
+        <label style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 6px;">Reason for
+          blocking:</label>
+        <textarea class="text-input" style="width: 100%; min-height: 80px; resize: none;" id="blockReasonInput"
+          placeholder="Why are you blocking them?"></textarea>
+      </div>
+      <div class="modal-actions">
+        <button class="topbar-btn" onclick="closeModal('blockModal')">Cancel</button>
+        <button class="danger-btn" onclick="submitBlock()">Block User</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Auto-Reply Modal -->
+  <div class="modal-overlay" id="autoReplyModal">
+    <div class="modal-card">
+      <h3>💬 Set Auto-Reply</h3>
+      <p>This message will be sent automatically to new requests when you are inactive.</p>
+      <textarea class="text-input" style="width: 100%; min-height: 120px; resize: none;" id="autoReplyInput"
+        placeholder="Hi! I'm currently busy but will get back to you soon..." data-key="autoReplyMessage"></textarea>
+      <div class="modal-actions">
+        <button class="topbar-btn" onclick="closeModal('autoReplyModal')">Close</button>
+        <button class="topbar-btn primary"
+          onclick="saveSetting('autoReplyMessage', document.getElementById('autoReplyInput').value); closeModal('autoReplyModal')">Save
+          Settings</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quiet Hours Modal -->
+  <div class="modal-overlay" id="quietHoursModal">
+    <div class="modal-card">
+      <h3>🌙 Quiet Hours</h3>
+      <p>Notifications will be silenced during this period.</p>
+      <div style="display: flex; gap: 12px; margin-bottom: 12px;">
+        <div style="flex: 1;">
+          <label style="font-size: 12px; color: var(--text-muted);">Start Time:</label>
+          <input type="time" class="text-input" style="width: 100%;" id="quietStartInput" data-key="quietHoursStart">
+        </div>
+        <div style="flex: 1;">
+          <label style="font-size: 12px; color: var(--text-muted);">End Time:</label>
+          <input type="time" class="text-input" style="width: 100%;" id="quietEndInput" data-key="quietHoursEnd">
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="topbar-btn" onclick="closeModal('quietHoursModal')">Close</button>
+        <button class="topbar-btn primary"
+          onclick="saveSetting('quietHoursStart', document.getElementById('quietStartInput').value); saveSetting('quietHoursEnd', document.getElementById('quietEndInput').value); closeModal('quietHoursModal')">Save
+          Period</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import {
+      getAuth, onAuthStateChanged, signOut
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import {
+      getFirestore, doc, getDoc, setDoc, updateDoc, arrayUnion, serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBq-BrrT0N4lszLMHowVkk12jit96t7sis",
+      authDomain: "gyan-swap.firebaseapp.com",
+      projectId: "gyan-swap",
+      storageBucket: "gyan-swap.firebasestorage.app",
+      messagingSenderId: "111231263033",
+      appId: "1:111231263033:web:05d8e6166a06c57d57c8e8"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    let currentUser = null;
+
+    // Navigation Logic
+    const navItems = document.querySelectorAll('.settings-nav-item');
+    navItems.forEach(item => {
+      item.addEventListener('click', (e) => {
+        e.preventDefault();
+        const targetId = item.getAttribute('href').slice(1);
+        const targetSection = document.getElementById(targetId);
+        targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        navItems.forEach(nav => nav.classList.remove('active'));
+        item.classList.add('active');
+      });
+    });
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.href = 'registration.html';
+        return;
+      }
+      currentUser = user;
+      loadUserSettings();
+    });
+
+    async function loadUserSettings() {
+      if (!currentUser) return;
+      const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
+      if (userDoc.exists()) {
+        const settings = userDoc.data().settings || {};
+
+        // Apply settings to UI
+        document.querySelectorAll('[data-key]').forEach(el => {
+          const key = el.getAttribute('data-key');
+          if (settings[key] !== undefined) {
+            if (el.type === 'checkbox') el.checked = settings[key];
+            else el.value = settings[key];
+          }
+        });
+      }
+    }
+
+    // Generic save function
+    async function saveSetting(key, value) {
+      if (!currentUser) return;
+      try {
+        await updateDoc(doc(db, 'users', currentUser.uid), {
+          [`settings.${key}`]: value,
+          updatedAt: serverTimestamp()
+        });
+        console.log(`Saved ${key}:`, value);
+      } catch (err) {
+        // If document doesn't exist or settings field is missing, we might need setDoc with merge
+        await setDoc(doc(db, 'users', currentUser.uid), {
+          settings: { [key]: value },
+          updatedAt: serverTimestamp()
+        }, { merge: true });
+      }
+    }
+
+    // Attach listeners to all inputs with data-key
+    document.addEventListener('change', (e) => {
+      const el = e.target;
+      if (el.hasAttribute('data-key')) {
+        const key = el.getAttribute('data-key');
+        const value = el.type === 'checkbox' ? el.checked : el.value;
+        saveSetting(key, value);
+      }
+    });
+
+    // Modal helpers
+    window.openModal = (id) => document.getElementById(id).style.display = 'flex';
+    window.closeModal = (id) => document.getElementById(id).style.display = 'none';
+
+    // Block logic
+    window.submitBlock = async () => {
+      const userVal = document.getElementById('blockUserInput').value.trim();
+      const reasonVal = document.getElementById('blockReasonInput').value.trim();
+
+      if (!userVal || !reasonVal) {
+        alert("Please provide both the user name/UID and a valid reason.");
+        return;
+      }
+
+      try {
+        await updateDoc(doc(db, 'users', currentUser.uid), {
+          blockedUsers: arrayUnion({
+            identifier: userVal,
+            reason: reasonVal,
+            blockedAt: new Date().toISOString()
+          })
+        });
+        alert(`User ${userVal} has been blocked.`);
+        closeModal('blockModal');
+        document.getElementById('blockUserInput').value = '';
+        document.getElementById('blockReasonInput').value = '';
+      } catch (err) {
+        alert("Error blocking user: " + err.message);
+      }
+    };
+
+    // Account deletion
+    document.querySelector('.danger-btn').addEventListener('click', () => {
+      if (confirm("Are you SURE you want to delete your account? This cannot be undone.")) {
+        alert("This feature requires administrative access. Please contact support.");
+      }
+    });
+
+    // Special trigger for block list
+    document.querySelector('button.topbar-btn[onclick]').remove(); // Cleanup if any
+    const manageBlockOld = document.querySelector('section#privacy button.topbar-btn');
+    if (manageBlockOld) {
+      manageBlockOld.textContent = "Block New User";
+      manageBlockOld.onclick = () => openModal('blockModal');
+    }
+
+    // Logout
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+      await signOut(auth);
+      window.location.href = 'registration.html';
+    });
+  </script>
+</body>
+
+</html>

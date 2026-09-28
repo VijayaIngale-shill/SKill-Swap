@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GyanSwap – Exchange Skills, Grow Together</title>
+  <meta name="description" content="GyanSwap is a free skill exchange platform. Teach what you know, learn what you don't. Join thousands of learners today." />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      color: #fff;
+      overflow-x: hidden;
+    }
+
+    /* ── Background video ── */
+    .bg-video {
+      position: fixed; top: 0; left: 0;
+      width: 100%; height: 100%;
+      object-fit: cover;
+      z-index: 0;
+      pointer-events: none;
+      /* Soft zoom-out on page load */
+      animation: videoZoomOut 2.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+      transform-origin: center center;
+    }
+    @keyframes videoZoomOut {
+      from { transform: scale(1.18); }
+      to   { transform: scale(1); }
+    }
+    /* Dark overlay */
+    .bg-overlay {
+      position: fixed; top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(80, 40, 140, 0.55);
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* ── Entrance keyframes ── */
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(48px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeDown {
+      from { opacity: 0; transform: translateY(-22px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+
+    /* ── All sections above canvas ── */
+    nav, .hero, .features, .how-it-works, .cta-section, footer { position: relative; z-index: 1; }
+
+    /* ── Nav ── */
+    nav {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 22px 60px;
+      background: rgba(255,255,255,0.08);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255,255,255,0.12);
+    }
+    .nav-logo {
+      font-size: 22px; font-weight: 700; color: #fff; text-decoration: none;
+      letter-spacing: -0.3px;
+    }
+    .nav-logo span { color: #b8f0d8; }
+    .nav-links { display: flex; align-items: center; gap: 14px; }
+    .nav-links a {
+      padding: 9px 22px;
+      border-radius: 30px;
+      text-decoration: none;
+      font-size: 14px; font-weight: 500;
+      transition: all 0.25s;
+    }
+    .btn-ghost {
+      color: rgba(255,255,255,0.85);
+      border: 1px solid rgba(255,255,255,0.3);
+      background: rgba(255,255,255,0.08);
+    }
+    .btn-ghost:hover { background: rgba(255,255,255,0.18); color: #fff; }
+    .btn-solid {
+      color: #764ba2;
+      background: #fff;
+      border: 1px solid #fff;
+      font-weight: 600;
+    }
+    .btn-solid:hover { background: #f0ecff; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(0,0,0,0.15); }
+
+    /* ── Hero ── */
+    .hero {
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      text-align: center;
+      padding: 100px 24px 80px;
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.25);
+      border-radius: 30px;
+      padding: 6px 18px;
+      font-size: 13px; font-weight: 500;
+      margin-bottom: 28px;
+      backdrop-filter: blur(8px);
+    }
+    .hero-badge .dot { width: 7px; height: 7px; border-radius: 50%; background: #00FF9C; animation: pulse 2s ease-in-out infinite; }
+    @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.6;transform:scale(1.3)} }
+    .hero h1 {
+      font-size: clamp(38px, 6vw, 68px);
+      font-weight: 800; line-height: 1.1;
+      margin-bottom: 22px;
+      letter-spacing: -1.5px;
+      text-shadow: 0 4px 24px rgba(0,0,0,0.15);
+    }
+    .hero h1 em { font-style: normal; color: #b8f0d8; }
+    .hero p {
+      font-size: clamp(15px, 2vw, 19px);
+      color: rgba(255,255,255,0.75);
+      max-width: 580px; line-height: 1.7;
+      margin-bottom: 42px;
+    }
+    .hero-btns { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; }
+    .hero-btns a {
+      padding: 14px 36px; border-radius: 30px;
+      font-size: 15px; font-weight: 600;
+      text-decoration: none;
+      transition: all 0.25s;
+    }
+    .btn-hero-primary {
+      background: #fff; color: #764ba2;
+      box-shadow: 0 8px 28px rgba(0,0,0,0.2);
+    }
+    .btn-hero-primary:hover { background: #f0ecff; transform: translateY(-3px); box-shadow: 0 14px 36px rgba(0,0,0,0.25); }
+    .btn-hero-secondary {
+      background: rgba(255,255,255,0.15);
+      color: #fff; border: 1px solid rgba(255,255,255,0.3);
+    }
+    .btn-hero-secondary:hover { background: rgba(255,255,255,0.25); transform: translateY(-2px); }
+
+    /* ── Stats strip ── */
+    .stats {
+      display: flex; justify-content: center; gap: 0;
+      background: rgba(255,255,255,0.1);
+      border-top: 1px solid rgba(255,255,255,0.15);
+      border-bottom: 1px solid rgba(255,255,255,0.15);
+      backdrop-filter: blur(10px);
+    }
+    .stat {
+      flex: 1; max-width: 220px;
+      text-align: center; padding: 28px 16px;
+      border-right: 1px solid rgba(255,255,255,0.15);
+    }
+    .stat:last-child { border-right: none; }
+    .stat-number { font-size: 30px; font-weight: 800; color: #fff; letter-spacing: -1px; }
+    .stat-label { font-size: 12px; color: rgba(255,255,255,0.6); margin-top: 3px; font-weight: 400; }
+
+    /* ── Features ── */
+    .features { padding: 90px 60px; }
+    .section-label {
+      text-align: center; font-size: 12px; font-weight: 600;
+      letter-spacing: 2px; text-transform: uppercase;
+      color: #b8f0d8; margin-bottom: 14px;
+    }
+    .section-title {
+      text-align: center; font-size: clamp(26px, 4vw, 40px);
+      font-weight: 700; margin-bottom: 56px; letter-spacing: -0.5px;
+    }
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 24px; max-width: 1100px; margin: 0 auto;
+    }
+    .feature-card {
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.18);
+      border-radius: 20px; padding: 32px 28px;
+      backdrop-filter: blur(10px);
+      transition: transform 0.25s, box-shadow 0.25s, background 0.25s;
+    }
+    .feature-card:hover { transform: translateY(-6px); background: rgba(255,255,255,0.16); box-shadow: 0 20px 50px rgba(0,0,0,0.2); }
+    .feature-icon {
+      font-size: 36px; margin-bottom: 18px;
+      display: inline-block;
+    }
+    .feature-card h3 { font-size: 17px; font-weight: 600; margin-bottom: 10px; }
+    .feature-card p { font-size: 13.5px; color: rgba(255,255,255,0.65); line-height: 1.7; }
+
+    /* ── How it works ── */
+    .how-it-works { padding: 80px 60px; }
+    .steps { display: flex; gap: 0; max-width: 900px; margin: 0 auto; position: relative; }
+    .steps::before {
+      content: ''; position: absolute;
+      top: 28px; left: 70px; right: 70px; height: 2px;
+      background: rgba(255,255,255,0.2);
+      z-index: 0;
+    }
+    .step { flex: 1; text-align: center; padding: 0 16px; position: relative; z-index: 1; }
+    .step-num {
+      width: 56px; height: 56px; border-radius: 50%;
+      background: rgba(255,255,255,0.2);
+      border: 2px solid rgba(255,255,255,0.35);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; font-weight: 700;
+      margin: 0 auto 18px;
+      backdrop-filter: blur(8px);
+    }
+    .step h4 { font-size: 15px; font-weight: 600; margin-bottom: 8px; }
+    .step p { font-size: 13px; color: rgba(255,255,255,0.6); line-height: 1.6; }
+
+    /* ── CTA section ── */
+    .cta-section {
+      padding: 90px 24px;
+      text-align: center;
+    }
+    .cta-box {
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 28px;
+      padding: 64px 48px;
+      max-width: 680px; margin: 0 auto;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+    }
+    .cta-box h2 { font-size: clamp(26px, 4vw, 38px); font-weight: 700; margin-bottom: 14px; letter-spacing: -0.5px; }
+    .cta-box p { color: rgba(255,255,255,0.65); font-size: 15px; margin-bottom: 36px; line-height: 1.7; }
+    .cta-btns { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+    .cta-btns a {
+      padding: 13px 34px; border-radius: 30px;
+      font-size: 14px; font-weight: 600; text-decoration: none;
+      transition: all 0.25s;
+    }
+    .cta-primary { background: #fff; color: #764ba2; box-shadow: 0 6px 20px rgba(0,0,0,0.18); }
+    .cta-primary:hover { background: #f0ecff; transform: translateY(-2px); box-shadow: 0 10px 28px rgba(0,0,0,0.22); }
+    .cta-secondary { background: rgba(255,255,255,0.15); color: #fff; border: 1px solid rgba(255,255,255,0.3); }
+    .cta-secondary:hover { background: rgba(255,255,255,0.25); transform: translateY(-2px); }
+
+    /* ── Footer ── */
+    footer {
+      text-align: center;
+      padding: 32px 24px;
+      border-top: 1px solid rgba(255,255,255,0.12);
+      background: rgba(0,0,0,0.1);
+      font-size: 13px; color: rgba(255,255,255,0.45);
+    }
+    footer strong { color: rgba(255,255,255,0.7); }
+
+    /* ── Responsive ── */
+    @media (max-width: 768px) {
+      nav { padding: 16px 24px; }
+      .features, .how-it-works { padding: 60px 24px; }
+      .steps { flex-direction: column; gap: 36px; }
+      .steps::before { display: none; }
+      .stats { flex-wrap: wrap; }
+      .stat { min-width: 50%; border-right: none; border-bottom: 1px solid rgba(255,255,255,0.12); }
+      .cta-box { padding: 44px 28px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!--
+    BACKGROUND VIDEO
+    ─────────────────
+    Drop your video file into this folder and name it: bg-video.mp4
+    It will automatically loop and play on all modern browsers.
+  -->
+  <video class="bg-video" autoplay loop muted playsinline>
+    <source src="video.mp4" type="video/mp4" />
+    <!-- Fallback: gradient background from CSS shows when no video is present -->
+  </video>
+
+  <!-- Overlay keeps text readable over busy video footage -->
+  <div class="bg-overlay"></div>
+
+  <!-- ── Navigation ── -->
+  <nav style="animation: fadeDown 0.7s ease-out 1.8s both;">
+    <a href="registration.html" class="nav-logo">Gyan<span>Swap</span></a>
+    <div class="nav-links">
+      <a href="auth.html#login" class="nav-links btn-ghost">Sign In</a>
+      <a href="auth.html"       class="nav-links btn-solid">Get Started Free</a>
+    </div>
+  </nav>
+
+  <!-- ── Hero ── -->
+  <section class="hero">
+    <div class="hero-badge" style="animation: slideUp 0.7s cubic-bezier(0.22,1,0.36,1) 2.0s both;">
+      <span class="dot"></span>
+      Free · No Credit Card · Open to Everyone
+    </div>
+    <h1 style="animation: slideUp 0.8s cubic-bezier(0.22,1,0.36,1) 2.3s both;">Exchange Skills,<br><em>Grow Together</em></h1>
+    <p style="animation: slideUp 0.7s cubic-bezier(0.22,1,0.36,1) 2.6s both;">GyanSwap is a free community where people teach what they know and learn what they don't. Trade your expertise — no money needed, just knowledge.</p>
+    <div class="hero-btns" style="animation: slideUp 0.7s cubic-bezier(0.22,1,0.36,1) 2.85s both;">
+      <a href="auth.html" class="btn-hero-primary">🚀 Create Free Account</a>
+      <a href="auth.html#login" class="btn-hero-secondary">Sign In →</a>
+    </div>
+  </section>
+
+  <!-- ── Stats ── -->
+  <div class="stats" style="animation: fadeIn 0.8s ease-out 3.3s both;">
+    <div class="stat"><div class="stat-number">10K+</div><div class="stat-label">Active Learners</div></div>
+    <div class="stat"><div class="stat-number">500+</div><div class="stat-label">Skills Available</div></div>
+    <div class="stat"><div class="stat-number">95%</div><div class="stat-label">Satisfaction Rate</div></div>
+    <div class="stat"><div class="stat-number">Free</div><div class="stat-label">Always & Forever</div></div>
+  </div>
+
+  <!-- ── Features ── -->
+  <section class="features" style="animation: fadeIn 0.8s ease-out 3.5s both;">
+    <div class="section-label">What You Get</div>
+    <h2 class="section-title">Everything you need to learn & teach</h2>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">🎓</div>
+        <h3>Learn Anything</h3>
+        <p>Find experts in coding, design, music, languages, cooking and hundreds of other skills — all ready to share their knowledge.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🤝</div>
+        <h3>Teach What You Know</h3>
+        <p>Your skills are valuable. Offer sessions in what you're good at and get back something equally valuable in return.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">💬</div>
+        <h3>Real Connections</h3>
+        <p>Connect with real people, not just courses. Build meaningful learning relationships that last beyond a single session.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">✨</div>
+        <h3>100% Free Forever</h3>
+        <p>No subscriptions, no hidden fees. GyanSwap is built on the belief that knowledge should flow freely between people.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── How it works ── -->
+  <section class="how-it-works" style="animation: fadeIn 0.8s ease-out 3.7s both;">
+    <div class="section-label">Simple Process</div>
+    <h2 class="section-title">Start exchanging in 3 steps</h2>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <h4>Create Your Profile</h4>
+        <p>Sign up in seconds and list the skills you can teach and what you want to learn.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <h4>Find Your Match</h4>
+        <p>Browse profiles and find people whose skills complement yours perfectly.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <h4>Start Swapping</h4>
+        <p>Connect, schedule sessions, and start growing together. It's that simple.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── CTA ── -->
+  <section class="cta-section" style="animation: fadeIn 0.8s ease-out 3.9s both;">
+    <div class="cta-box">
+      <h2>Ready to start your skill journey?</h2>
+      <p>Join thousands of people already exchanging skills on GyanSwap. Create your free account in under a minute.</p>
+      <div class="cta-btns">
+        <a href="auth.html" class="cta-primary">🚀 Get Started Free</a>
+        <a href="auth.html#login" class="cta-secondary">Already a member? Sign In</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Footer ── -->
+  <footer style="animation: fadeIn 0.8s ease-out 4.0s both;">
+    <p>Made with ❤️ · <strong>GyanSwap</strong> · Learn · Teach · Exchange · © 2025</p>
+  </footer>
+
+
+</body>
+</html>

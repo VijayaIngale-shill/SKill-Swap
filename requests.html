@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Requests – GyanSwap</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --primary: #667eea;
+      --secondary: #764ba2;
+      --accent: #00FF9C;
+      --accent-soft: #b8f0d8;
+      --sidebar-w: 240px;
+      --card-bg: rgba(255, 255, 255, 0.08);
+      --card-border: rgba(255, 255, 255, 0.14);
+      --text: #fff;
+      --text-muted: rgba(255, 255, 255, 0.55);
+    }
+
+    ::selection {
+      background: var(--accent);
+      color: #1a1a2e;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: var(--text);
+      display: flex;
+    }
+
+    /* ── Sidebar (Reused from Dashboard) ── */
+    .sidebar {
+      width: var(--sidebar-w);
+      background: rgba(0, 0, 0, 0.2);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-right: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      flex-direction: column;
+      padding: 28px 0;
+      position: fixed;
+      height: 100vh;
+    }
+    .sidebar-logo {
+      padding: 0 24px 28px;
+      font-size: 20px;
+      font-weight: 700;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      margin-bottom: 20px;
+    }
+    .sidebar-logo span { color: var(--accent-soft); }
+    .nav-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 24px;
+      color: rgba(255, 255, 255, 0.6);
+      text-decoration: none; font-size: 14px; font-weight: 500;
+      transition: 0.2s;
+    }
+    .nav-item:hover { color: #fff; background: rgba(255,255,255,0.07); }
+    .nav-item.active {
+      color: #fff; background: rgba(255, 255, 255, 0.12);
+      font-weight: 600;
+      position: relative;
+    }
+    .nav-item.active::before {
+      content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+      width: 3px; background: var(--accent);
+    }
+    .nav-badge {
+      margin-left: auto; background: var(--accent);
+      color: #222; font-size: 10px; font-weight: 700;
+      padding: 2px 7px; border-radius: 30px;
+    }
+
+    /* ── Main content ── */
+    .main {
+      margin-left: var(--sidebar-w);
+      flex: 1;
+      padding: 40px;
+    }
+
+    .header {
+      margin-bottom: 40px;
+    }
+    h2 { font-size: 28px; font-weight: 700; }
+
+    .glass-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 30px;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+    }
+
+    .tabs {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 30px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      padding-bottom: 15px;
+    }
+    .tab-btn {
+      background: none; border: none; color: rgba(255,255,255,0.5);
+      font-size: 16px; font-weight: 600; cursor: pointer;
+      padding: 8px 0; position: relative;
+      transition: 0.3s;
+    }
+    .tab-btn.active { color: #fff; }
+    .tab-btn.active::after {
+      content: ''; position: absolute; bottom: -16px; left: 0; right: 0;
+      height: 3px; background: var(--accent); border-radius: 3px;
+    }
+
+    .request-list {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .request-item {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px;
+      padding: 18px 24px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      transition: 0.2s;
+    }
+    .request-item:hover { background: rgba(255,255,255,0.08); }
+
+    .req-avatar {
+      width: 50px; height: 50px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), var(--primary));
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 18px; overflow: hidden;
+    }
+    .req-avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+    .req-info { flex: 1; }
+    .req-info h3 { font-size: 16px; margin-bottom: 4px; }
+    .req-info p { font-size: 13px; color: var(--text-muted); }
+
+    .req-status {
+      font-size: 12px; font-weight: 600; padding: 6px 14px; border-radius: 20px;
+    }
+    .status-pending { background: rgba(255,255,255,0.1); color: #fff; }
+    .status-accepted { background: rgba(0, 255, 156, 0.15); color: var(--accent); }
+    .status-rejected { background: rgba(255, 107, 107, 0.15); color: #ff6b6b; }
+
+    .req-actions { display: flex; gap: 10px; }
+    .action-btn {
+      padding: 8px 20px; border-radius: 12px; border: none;
+      font-weight: 600; cursor: pointer; transition: 0.2s;
+    }
+    .action-btn.accept { background: var(--accent); color: #1a1a2e; }
+    .action-btn.decline { background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(255,255,255,0.2); }
+    .action-btn:hover { transform: scale(1.05); }
+
+    #loadingOverlay {
+        position: fixed; inset: 0; background: rgba(0,0,0,0.4);
+        display: none; align-items: center; justify-content: center;
+        z-index: 1000;
+    }
+    .loader {
+        width: 48px; height: 48px; border: 5px solid #FFF; border-bottom-color: var(--accent);
+        border-radius: 50%; display: inline-block; box-sizing: border-box;
+        animation: rotation 1s linear infinite;
+    }
+    @keyframes rotation { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+  <div id="loadingOverlay"><span class="loader"></span></div>
+
+  <aside class="sidebar">
+    <div class="sidebar-logo">Gyan<span>Swap</span></div>
+    <a href="Dashboard.html" class="nav-item">🏠 Dashboard</a>
+    <a href="profile.html" class="nav-item">👤 My Profile</a>
+    <a href="search.html" class="nav-item">🔍 Explore Skills</a>
+    <a href="requests.html" class="nav-item active">🤝 Requests <span class="nav-badge" id="requestsBadge" style="display:none;">0</span></a>
+    <a href="messages.html" class="nav-item">💬 Messages</a>
+    <a href="sessions.html" class="nav-item">📅 Sessions <span class="nav-badge" id="sessionsBadge" style="display:none;">0</span></a>
+  </aside>
+
+  <main class="main">
+    <div class="header">
+      <h2>Swap Requests</h2>
+    </div>
+
+    <div class="glass-card">
+      <div class="tabs">
+        <button class="tab-btn active" id="inboxTab" onclick="switchTab('inbox')">Received (Inbox)</button>
+        <button class="tab-btn" id="sentTab" onclick="switchTab('sent')">Sent Requests</button>
+      </div>
+
+      <div id="inboxList" class="request-list">
+        <!-- Received requests will be loaded here -->
+        <div style="padding: 40px; text-align: center; opacity: 0.5;">No incoming requests yet.</div>
+      </div>
+
+      <div id="sentList" class="request-list" style="display:none;">
+        <!-- Sent requests will be loaded here -->
+        <div style="padding: 40px; text-align: center; opacity: 0.5;">You haven't sent any requests yet.</div>
+      </div>
+    </div>
+  </main>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getFirestore, collection, query, where, onSnapshot, doc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBq-BrrT0N4lszLMHowVkk12jit96t7sis",
+      authDomain: "gyan-swap.firebaseapp.com",
+      projectId: "gyan-swap",
+      storageBucket: "gyan-swap.firebasestorage.app",
+      messagingSenderId: "111231263033",
+      appId: "1:111231263033:web:05d8e6166a06c57d57c8e8"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    let currentUser = null;
+
+    onAuthStateChanged(auth, (user) => {
+      if (!user) { window.location.href = 'registration.html'; return; }
+      currentUser = user;
+      setupListeners();
+      listenForSessions(user.uid);
+    });
+
+    function listenForSessions(uid) {
+      const q = query(collection(db, "sessions"), where("participants", "array-contains", uid));
+      onSnapshot(q, (snapshot) => {
+        const badge = document.getElementById('sessionsBadge');
+        if (badge) {
+          const incomingPending = snapshot.docs.filter(d => d.data().status === 'pending' && d.data().createdBy !== uid).length;
+          badge.textContent = incomingPending;
+          badge.style.display = incomingPending > 0 ? 'inline-block' : 'none';
+        }
+      });
+    }
+
+    function setupListeners() {
+      // Listen for incoming requests
+      const qInbox = query(collection(db, "swap_requests"), where("toUid", "==", currentUser.uid));
+      onSnapshot(qInbox, (snapshot) => {
+        const list = document.getElementById('inboxList');
+        const badge = document.getElementById('requestsBadge');
+        const pendingCount = snapshot.docs.filter(d => d.data().status === 'pending').length;
+        
+        if (badge) {
+          badge.textContent = pendingCount;
+          badge.style.display = pendingCount > 0 ? 'inline-block' : 'none';
+        }
+
+        list.innerHTML = snapshot.empty ? '<div style="padding: 40px; text-align: center; opacity: 0.5;">No incoming requests yet.</div>' : '';
+        snapshot.docs.sort((a,b) => (b.data().timestamp?.seconds || 0) - (a.data().timestamp?.seconds || 0))
+              .forEach(doc => renderRequest(doc.id, doc.data(), 'inbox'));
+      });
+
+      // Listen for outgoing requests
+      const qSent = query(collection(db, "swap_requests"), where("fromUid", "==", currentUser.uid));
+      onSnapshot(qSent, (snapshot) => {
+        const list = document.getElementById('sentList');
+        list.innerHTML = snapshot.empty ? '<div style="padding: 40px; text-align: center; opacity: 0.5;">You haven\'t sent any requests yet.</div>' : '';
+        snapshot.docs.sort((a,b) => (b.data().timestamp?.seconds || 0) - (a.data().timestamp?.seconds || 0))
+              .forEach(doc => renderRequest(doc.id, doc.data(), 'sent'));
+      });
+    }
+
+    function renderRequest(id, data, type) {
+      const item = document.createElement('div');
+      item.className = 'request-item';
+      
+      const isPending = data.status === 'pending';
+      const statusClass = `status-${data.status}`;
+      
+      if (type === 'inbox') {
+        const init = data.fromName.split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2);
+        item.innerHTML = `
+          <div class="req-avatar">${data.fromPhoto ? `<img src="${data.fromPhoto}">` : init}</div>
+          <div class="req-info">
+            <h3>${data.fromName}</h3>
+            <p>Wants to swap: <strong>${data.skill}</strong></p>
+          </div>
+          ${isPending ? `
+            <div class="req-actions">
+              <button class="action-btn accept" onclick="handleRequest('${id}', 'accepted')">Accept</button>
+              <button class="action-btn decline" onclick="handleRequest('${id}', 'rejected')">Decline</button>
+            </div>
+          ` : `
+            <div style="display:flex; align-items:center; gap:12px;">
+                <div class="req-status ${statusClass}">${data.status.toUpperCase()}</div>
+                ${data.status === 'accepted' ? `<button class="action-btn accept" onclick="window.location.href='messages.html?to=${data.fromUid}'">Message</button>` : ''}
+            </div>
+          `}
+        `;
+        document.getElementById('inboxList').appendChild(item);
+      } else {
+        item.innerHTML = `
+          <div class="req-info">
+            <h3>Request to ${data.toName || 'User'}</h3>
+            <p>Skill: <strong>${data.skill}</strong></p>
+          </div>
+          <div class="req-status ${statusClass}">${data.status.toUpperCase() === 'PENDING' ? '⏳ WAITING' : data.status.toUpperCase()}</div>
+          ${data.status === 'accepted' ? `<button class="action-btn accept" style="margin-top:10px" onclick="window.location.href='messages.html?to=${data.toUid}'">Message</button>` : ''}
+        `;
+        document.getElementById('sentList').appendChild(item);
+      }
+    }
+
+    window.handleRequest = async (requestId, newStatus) => {
+      try {
+        await updateDoc(doc(db, "swap_requests", requestId), {
+          status: newStatus,
+          handledAt: serverTimestamp()
+        });
+        if (newStatus === 'accepted') alert("Request accepted! Connection established.");
+      } catch (err) {
+        alert("Error: " + err.message);
+      }
+    };
+
+    window.switchTab = (tab) => {
+      const inboxList = document.getElementById('inboxList');
+      const sentList = document.getElementById('sentList');
+      const inboxBtn = document.getElementById('inboxTab');
+      const sentBtn = document.getElementById('sentTab');
+
+      if (tab === 'inbox') {
+        inboxList.style.display = 'flex';
+        sentList.style.display = 'none';
+        inboxBtn.classList.add('active');
+        sentBtn.classList.remove('active');
+      } else {
+        inboxList.style.display = 'none';
+        sentList.style.display = 'flex';
+        inboxBtn.classList.remove('active');
+        sentBtn.classList.add('active');
+      }
+    };
+  </script>
+</body>
+</html>

@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Session Room – GyanSwap</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <script src="https://meet.jit.si/external_api.js"></script>
+    <style>
+        :root {
+            --primary: #667eea;
+            --secondary: #764ba2;
+            --accent: #00FF9C;
+            --danger: #FF6B6B;
+            --card-bg: rgba(255, 255, 255, 0.08);
+            --card-border: rgba(255, 255, 255, 0.14);
+            --text: #fff;
+            --text-muted: rgba(255, 255, 255, 0.55);
+        }
+
+        ::selection {
+            background: var(--accent);
+            color: #1a1a2e;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container { max-width: 1000px; margin: 0 auto; }
+
+        .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 30px; }
+        .session-title h2 { font-size: 24px; font-weight: 700; background: linear-gradient(90deg, #fff, var(--accent)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+        .session-title p { font-size: 14px; color: var(--text-muted); margin-top: 4px; }
+
+        .grid { display: grid; grid-template-columns: 1fr 340px; gap: 30px; }
+
+        .glass-card {
+            background: var(--card-bg); border: 1px solid var(--card-border);
+            border-radius: 24px; padding: 30px; backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+        }
+
+        /* ── Task Sections ── */
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .badge { font-size: 10px; font-weight: 800; padding: 4px 12px; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .badge-teach { background: rgba(0, 255, 156, 0.15); color: var(--accent); }
+        .badge-learn { background: rgba(102, 126, 234, 0.15); color: var(--primary); }
+
+        .task-list { list-style: none; }
+        .task-item {
+            background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 14px; padding: 16px; margin-bottom: 12px; display: flex; align-items: center; gap: 14px;
+            transition: 0.2s;
+        }
+        .task-item:hover { border-color: rgba(255,255,255,0.15); background: rgba(255, 255, 255, 0.07); }
+        .task-item.completed { opacity: 0.6; }
+        .task-checkbox { 
+            width: 22px; height: 22px; border: 2px solid rgba(255,255,255,0.3); border-radius: 6px; 
+            cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s;
+        }
+        .task-checkbox.checked { background: var(--accent); border-color: var(--accent); color: #1a1a2e; }
+        .task-text { flex: 1; font-size: 14px; font-weight: 500; }
+        .completed .task-text { text-decoration: line-through; }
+
+        .add-task-row { display: flex; gap: 10px; margin-top: 15px; }
+        .task-input { 
+            flex: 1; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 12px; padding: 10px 16px; color: #fff; font-family: inherit; font-size: 13px; outline: none;
+        }
+        .btn-add { background: var(--accent); color: #1a1a2e; border: none; padding: 0 16px; border-radius: 12px; font-weight: 600; cursor: pointer; }
+
+        /* ── Sidebar Info ── */
+        .participant-card { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; padding: 15px; background: rgba(255,255,255,0.03); border-radius: 16px; }
+        .status-dot { width: 10px; height: 10px; border-radius: 50%; background: #555; }
+        .status-dot.online { background: var(--accent); box-shadow: 0 0 10px var(--accent); }
+        
+        .commitment-warning { 
+            background: rgba(255, 107, 107, 0.1); border: 1px solid rgba(255,107,107,0.2);
+            color: var(--danger); padding: 16px; border-radius: 16px; font-size: 12px; line-height: 1.5; margin-bottom: 20px;
+        }
+
+        /* ── Video Call ── */
+        .video-container { 
+            width: 100%; border-radius: 24px; overflow: hidden; 
+            background: #000; margin-bottom: 30px; border: 1px solid var(--card-border);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            display: none; /* Hidden until participant check */
+        }
+        .video-container iframe { border: none; display: block; }
+
+        /* ── Progress Bars ── */
+        .progress-bar-wrap { 
+            width: 100%; height: 6px; background: rgba(255,255,255,0.08); 
+            border-radius: 10px; margin: 12px 0; overflow: hidden; 
+        }
+        .progress-bar-fill { 
+            height: 100%; width: 0%; transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1); 
+        }
+        .fill-teach { background: var(--accent); box-shadow: 0 0 10px var(--accent); }
+        .fill-learn { background: var(--primary); box-shadow: 0 0 10px var(--primary); }
+
+        /* ── Button States ── */
+        .btn-disabled { opacity: 0.4; cursor: not-allowed !important; pointer-events: none; }
+
+        /* ── Reversal Warning ── */
+        .commitment-warning { 
+            background: rgba(255, 107, 107, 0.15); border: 1px solid rgba(255,107,107,0.3);
+            color: #ff8e8e; padding: 20px; border-radius: 20px; font-size: 13px; line-height: 1.6; margin-bottom: 25px;
+            display: flex; gap: 15px; align-items: center;
+        }
+        .warning-icon { font-size: 24px; flex-shrink: 0; }
+
+        /* ── Loader ── */
+        #loader { position: fixed; inset: 0; background: #1a1a2e; z-index: 2000; display: flex; align-items: center; justify-content: center; }
+
+    </style>
+</head>
+<body>
+
+    <div id="loader">Waiting for data...</div>
+
+    <div class="container">
+        <div class="header">
+            <div class="session-title">
+                <h2 id="sessionSkillName">Loading session...</h2>
+                <p id="partnerInfo">Workspace with ...</p>
+            </div>
+            <div style="display:flex; align-items:center; gap:15px;">
+                <div class="badge" id="sessionStatus">SESSION ACTIVE</div>
+                <button id="btnLeaveRoom" onclick="leaveRoom()" class="btn-add" style="background:rgba(255,107,107,0.2); color:var(--danger); border:1px solid rgba(255,107,107,0.3);">Leave Room</button>
+            </div>
+        </div>
+
+        <!-- Video Call Container -->
+        <div id="videoContainer" class="video-container">
+            <!-- Iframe injected by JS -->
+        </div>
+
+        <div class="grid">
+            <div class="main-workspace">
+                <!-- Commitment/Reversal Warning -->
+                <div id="reversalWarning" class="commitment-warning" style="display: none;">
+                    <div class="warning-icon">⚠️</div>
+                    <div>
+                        <strong>Mutual Commitment:</strong> You have completed your learning goals, but your teaching obligations are still pending. 
+                        To maintain your reputation and leave the room, please finalize your teaching tasks.
+                    </div>
+                </div>
+
+                <!-- My Teaching Tasks -->
+                <div class="glass-card" style="margin-bottom: 30px;">
+                    <div class="section-header">
+                        <h3>My Teaching Tasks</h3>
+                        <span class="badge badge-teach">My Responsibility</span>
+                    </div>
+                    
+                    <div class="progress-bar-wrap">
+                        <div id="teachProgress" class="progress-bar-fill fill-teach"></div>
+                    </div>
+                    <div id="teachStatusText" style="font-size: 9px; opacity: 0.6; margin-bottom: 10px;">My Teaching: 0%</div>
+
+                    <div class="progress-bar-wrap" style="height: 3px; opacity: 0.4;">
+                        <div id="partnerTeachProgress" class="progress-bar-fill fill-teach" style="opacity: 0.5;"></div>
+                    </div>
+                    <div id="partnerTeachStatusText" style="font-size: 8px; opacity: 0.4; margin-bottom: 15px;">Partner's Teaching: 0%</div>
+
+                    <div id="teachTasksList" class="task-list"></div>
+                    <div class="add-task-row">
+                        <input type="text" id="teachTaskInput" class="task-input" placeholder="What will you teach today?">
+                        <button class="btn-add" onclick="window.addTask('teaching')">Add</button>
+                    </div>
+                </div>
+
+                <!-- My Learning Tasks -->
+                <div class="glass-card">
+                    <div class="section-header">
+                        <h3>My Learning Tasks</h3>
+                        <span class="badge badge-learn">Expectations</span>
+                    </div>
+
+                    <div class="progress-bar-wrap">
+                        <div id="learnProgress" class="progress-bar-fill fill-learn"></div>
+                    </div>
+                    <div id="learnStatusText" style="font-size: 9px; opacity: 0.6; margin-bottom: 10px;">My Learning: 0%</div>
+
+                    <div class="progress-bar-wrap" style="height: 3px; opacity: 0.4;">
+                        <div id="partnerLearnProgress" class="progress-bar-fill fill-learn" style="opacity: 0.5;"></div>
+                    </div>
+                    <div id="partnerLearnStatusText" style="font-size: 8px; opacity: 0.4; margin-bottom: 15px;">Partner's Learning: 0%</div>
+
+                    <div id="learnTasksList" class="task-list"></div>
+                    <div class="add-task-row">
+                        <input type="text" id="learnTaskInput" class="task-input" placeholder="What do you want to learn?">
+                        <button class="btn-add" onclick="window.addTask('learning')">Add</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-info">
+                <div class="glass-card">
+                    <div class="card-title">Participants</div>
+                    <div id="participantsList"></div>
+
+                    <div style="margin-top:40px;">
+                        <h4 style="font-size:12px; color:var(--text-muted); text-transform:uppercase; margin-bottom:15px;">Session Status</h4>
+                        <div id="completionStatus" style="font-size:13px; line-height:2;">
+                            <div>Learning Done: <span id="valLearn">❌</span></div>
+                            <div>Teaching Done: <span id="valTeach">❌</span></div>
+                        </div>
+                        <button id="btnFinish" class="btn-finish" style="margin-top:20px;">Finish & Update Profile</button>
+                    </div>
+                </div>
+
+                <div class="glass-card" style="margin-top:18px; padding:20px;">
+                    <h4 style="font-size:12px; color:var(--text-muted); text-transform:uppercase; margin-bottom:10px;">Activity Timeline</h4>
+                    <div id="activityTimeline" style="font-size:11px; max-height:200px; overflow-y:auto; padding-right:5px;">
+                        <div style="opacity:0.5; padding:10px 0;">No activity yet...</div>
+                    </div>
+                </div>
+
+                <div class="glass-card" style="margin-top:18px; padding:20px;">
+                    <h4 style="font-size:12px; color:var(--text-muted); text-transform:uppercase; margin-bottom:10px;">Rule Reminder</h4>
+                    <p style="font-size:11px; opacity:0.7; line-height:1.6;">
+                        Sessions terminate after <strong>48 hours</strong> of total inactivity. Ensure you return to complete your teaching obligations!
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { 
+            getFirestore, doc, onSnapshot, updateDoc, collection, query, 
+            where, addDoc, serverTimestamp, increment, deleteDoc, setDoc, getDoc, getDocs
+        } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBq-BrrT0N4lszLMHowVkk12jit96t7sis",
+            authDomain: "gyan-swap.firebaseapp.com",
+            projectId: "gyan-swap",
+            storageBucket: "gyan-swap.firebasestorage.app",
+            messagingSenderId: "111231263033",
+            appId: "1:111231263033:web:05d8e6166a06c57d57c8e8"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const sessionId = urlParams.get('id');
+
+        let currentUser = null;
+        let sessionData = null;
+        let sessionTasks = [];
+
+        if (!sessionId) { alert("Invalid Session"); window.location.href = 'sessions.html'; }
+
+        onAuthStateChanged(auth, (user) => {
+            if (!user) { window.location.href = 'registration.html'; return; }
+            currentUser = user;
+            initSession();
+        });
+
+        let isLifecycleChecked = false;
+
+        async function loadTasksOnce() {
+            try {
+                const snapshot = await getDocs(collection(db, "sessions", sessionId, "tasks"));
+                sessionTasks = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+                renderRoom();
+            } catch (err) { console.error("Load Tasks Error:", err); }
+        }
+
+        async function loadActivityOnce() {
+            try {
+                const activityQ = query(
+                    collection(db, "sessions", sessionId, "activity"),
+                    where("timestamp", "!=", null)
+                );
+                const snapshot = await getDocs(activityQ);
+                const logs = snapshot.docs.map(d => d.data());
+                logs.sort((a, b) => (b.timestamp?.toDate() || 0) - (a.timestamp?.toDate() || 0));
+                renderActivity(logs);
+            } catch (err) { console.error("Load Activity Error:", err); }
+        }
+
+        function initSession() {
+            // Document Listener - ONLY ONE real-time listener
+            onSnapshot(doc(db, "sessions", sessionId), async (docSnap) => {
+                if (!docSnap.exists()) { 
+                    alert("Session Terminated or Not Found"); 
+                    window.location.href = 'sessions.html'; 
+                    return; 
+                }
+                sessionData = docSnap.data();
+                document.getElementById('loader').style.display = 'none';
+
+                if (!isLifecycleChecked) {
+                    isLifecycleChecked = true;
+                    const now = new Date();
+                    
+                    // 0. Verify Participant (Security check for UI)
+                    if (!sessionData.participants.includes(currentUser.uid)) {
+                        alert("Access Denied: You are not a participant in this session.");
+                        window.location.href = 'Dashboard.html';
+                        return;
+                    }
+
+                    // 1. Initial Video Load (Security check included)
+                    injectVideoCall();
+
+                    // 2. Check for Auto-Termination
+                    if (sessionData.status === 'paused' && sessionData.deadlineToRejoin) {
+                        const deadline = sessionData.deadlineToRejoin.toDate();
+                        if (now > deadline) {
+                            await updateDoc(doc(db, "sessions", sessionId), { status: 'terminated' });
+                            await logActivity('terminated', { reason: '48h rejoin deadline exceeded' });
+                            alert("Session terminated due to 48h rejoin deadline.");
+                            window.location.href = 'sessions.html';
+                            return;
+                        }
+                    }
+
+                    if (sessionData.status === 'terminated') {
+                        alert("This session has been terminated.");
+                        window.location.href = 'sessions.html';
+                        return;
+                    }
+
+                    // 2. Initial Join or Rejoin (Ensures updateDoc runs only once)
+                    if (sessionData.status === 'accepted') {
+                        await updateDoc(doc(db, "sessions", sessionId), { status: 'active' });
+                        await logActivity('joined');
+                    } else if (sessionData.status === 'paused') {
+                        await updateDoc(doc(db, "sessions", sessionId), { status: 'active' });
+                        await logActivity('rejoined');
+                    }
+
+                    // Initial load for activity
+                    loadActivityOnce();
+                }
+
+                renderRoom();
+            }, (err) => {
+                if (err.code === 'resource-exhausted') {
+                    console.error("Firestore Quota Exceeded.");
+                } else {
+                    console.error("Session Doc Error:", err);
+                }
+            });
+
+            // Tasks Subcollection Listener - Back to real-time for live progress
+            const tasksQ = query(collection(db, "sessions", sessionId, "tasks"));
+            onSnapshot(tasksQ, (snapshot) => {
+                sessionTasks = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+                renderRoom();
+            }, (err) => {
+                console.error("Tasks Subcollection Error:", err);
+            });
+
+            // Update presence less frequently to save quota (3 mins)
+            updatePresence();
+            setInterval(updatePresence, 180000); 
+        }
+
+        function injectVideoCall() {
+            if (!sessionData || !sessionData.participants.includes(currentUser.uid)) {
+                console.error("Video Access Denied: User not in participants list.");
+                return;
+            }
+            const container = document.getElementById('videoContainer');
+            if (!container) return;
+            container.style.display = 'block';
+            container.innerHTML = ''; // clear any previous content
+            container.style.height = '500px';
+
+            // Use the display name from Firebase Auth; fall back to the name stored in the session
+            const partnerUid = sessionData.participants.find(p => p !== currentUser.uid);
+            const myName = currentUser.displayName
+                || sessionData.participantNames?.[currentUser.uid]
+                || 'GyanSwap User';
+            const myEmail = currentUser.email || '';
+
+            // Jitsi External API — auto-fills name & email so user is never prompted
+            const api = new JitsiMeetExternalAPI('meet.jit.si', {
+                roomName: `gyanswap-session-${sessionId}`,
+                parentNode: container,
+                width: '100%',
+                height: 500,
+                configOverwrite: {
+                    prejoinPageEnabled: false,          // skip the pre-join name screen
+                    disableDeepLinking: true,
+                    startWithAudioMuted: false,
+                    startWithVideoMuted: false
+                },
+                interfaceConfigOverwrite: {
+                    SHOW_JITSI_WATERMARK: false,
+                    SHOW_BRAND_WATERMARK: false,
+                    TOOLBAR_BUTTONS: [
+                        'microphone', 'camera', 'closedcaptions', 'desktop',
+                        'fullscreen', 'fodeviceselection', 'hangup', 'chat',
+                        'settings', 'raisehand', 'videoquality', 'filmstrip', 'tileview'
+                    ]
+                },
+                userInfo: {
+                    displayName: myName,
+                    email: myEmail
+                }
+            });
+        }
+
+        function renderActivity(logs) {
+            const container = document.getElementById('activityTimeline');
+            if (logs.length === 0) {
+                container.innerHTML = '<div style="opacity:0.5; padding:10px 0;">No activity yet...</div>';
+                return;
+            }
+            container.innerHTML = logs.map(log => {
+                const time = log.timestamp?.toDate() ? log.timestamp.toDate().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '...';
+                const name = log.userId === currentUser.uid ? 'You' : (sessionData?.participantNames[log.userId] || 'User');
+                
+                let text = '';
+                switch(log.action) {
+                    case 'joined': text = 'entered the room'; break;
+                    case 'left': text = 'left the room'; break;
+                    case 'rejoined': text = 'rejoined the room'; break;
+                    case 'completed_task': text = `completed: ${log.taskTitle}`; break;
+                    case 'terminated': text = 'session terminated'; break;
+                    default: text = log.action;
+                }
+
+                return `
+                    <div style="margin-bottom:8px; border-left:2px solid var(--accent); padding-left:10px;">
+                        <span style="font-weight:600; color:var(--accent);">${name}</span> ${text}
+                        <div style="opacity:0.4; font-size:9px;">${time}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function logActivity(action, details = {}) {
+            try {
+                await addDoc(collection(db, "sessions", sessionId, "activity"), {
+                    userId: currentUser.uid,
+                    action: action,
+                    timestamp: serverTimestamp(),
+                    ...details
+                });
+            } catch (err) { console.error("Activity Log Error:", err); }
+        }
+
+        async function updatePresence() {
+            // Very simple presence logic (could be improved with Realtime Database)
+            await updateDoc(doc(db, "sessions", sessionId), {
+                lastActivity: serverTimestamp(),
+                [`presence.${currentUser.uid}`]: 'online'
+            });
+        }
+
+        function renderRoom() {
+            if (!sessionData) return;
+            document.getElementById('sessionSkillName').textContent = sessionData.skillName;
+            const partnerUid = sessionData.participants.find(p => p !== currentUser.uid);
+            const partnerName = sessionData.participantNames[partnerUid];
+            document.getElementById('partnerInfo').textContent = `Collaborating with ${partnerName}`;
+
+            // Render Tasks
+            const teachList = document.getElementById('teachTasksList');
+            const learnList = document.getElementById('learnTasksList');
+            teachList.innerHTML = ''; learnList.innerHTML = '';
+
+            sessionTasks.forEach((task) => {
+                const isMyTask = task.assignedTo === currentUser.uid;
+                const taskEl = document.createElement('div');
+                taskEl.className = `task-item ${task.status === 'completed' ? 'completed' : ''}`;
+                const canComplete = task.assignedTo === currentUser.uid;
+                
+                taskEl.innerHTML = `
+                    <div class="task-checkbox ${task.status === 'completed' ? 'checked' : ''}" 
+                         style="${canComplete ? '' : 'cursor:not-allowed; opacity:0.5;'}"
+                         onclick="window.toggleTask('${task.id}', '${task.assignedTo}')">
+                        ${task.status === 'completed' ? '✓' : ''}
+                    </div>
+                    <div class="task-text">
+                        ${task.title}
+                        <span style="font-size:10px; opacity:0.6; display:block;">
+                            ${isMyTask ? 'Assigned to me' : `Assigned to ${sessionData.participantNames[task.assignedTo]}`}
+                        </span>
+                    </div>
+                `;
+
+                if (task.type === 'teaching_task') teachList.appendChild(taskEl);
+                if (task.type === 'learning_task') learnList.appendChild(taskEl);
+            });
+
+            // Accountability Logic & Progress
+            // (partnerUid is already defined above)
+
+            // My Progress
+            const myLearningTasks = sessionTasks.filter(t => t.assignedTo === currentUser.uid && t.type === 'learning_task');
+            const learnDoneCount = myLearningTasks.filter(t => t.status === 'completed').length;
+            const learnPercent = myLearningTasks.length > 0 ? (learnDoneCount / myLearningTasks.length) * 100 : 0;
+            document.getElementById('learnProgress').style.width = `${learnPercent}%`;
+            document.getElementById('learnStatusText').textContent = `My Learning: ${Math.round(learnPercent)}% (${learnDoneCount}/${myLearningTasks.length})`;
+
+            const myTeachingTasks = sessionTasks.filter(t => t.assignedTo === currentUser.uid && t.type === 'teaching_task');
+            const teachDoneCount = myTeachingTasks.filter(t => t.status === 'completed').length;
+            const teachPercent = myTeachingTasks.length > 0 ? (teachDoneCount / myTeachingTasks.length) * 100 : 0;
+            document.getElementById('teachProgress').style.width = `${teachPercent}%`;
+            document.getElementById('teachStatusText').textContent = `My Teaching: ${Math.round(teachPercent)}% (${teachDoneCount}/${myTeachingTasks.length})`;
+
+            // Partner Progress
+            const partnerLearningTasks = sessionTasks.filter(t => t.assignedTo === partnerUid && t.type === 'learning_task');
+            const pLearnDone = partnerLearningTasks.filter(t => t.status === 'completed').length;
+            const pLearnPercent = partnerLearningTasks.length > 0 ? (pLearnDone / partnerLearningTasks.length) * 100 : 0;
+            document.getElementById('partnerLearnProgress').style.width = `${pLearnPercent}%`;
+            document.getElementById('partnerLearnStatusText').textContent = `Partner's Learning: ${Math.round(pLearnPercent)}% (${pLearnDone}/${partnerLearningTasks.length})`;
+
+            const partnerTeachingTasks = sessionTasks.filter(t => t.assignedTo === partnerUid && t.type === 'teaching_task');
+            const pTeachDone = partnerTeachingTasks.filter(t => t.status === 'completed').length;
+            const pTeachPercent = partnerTeachingTasks.length > 0 ? (pTeachDone / partnerTeachingTasks.length) * 100 : 0;
+            document.getElementById('partnerTeachProgress').style.width = `${pTeachPercent}%`;
+            document.getElementById('partnerTeachStatusText').textContent = `Partner's Teaching: ${Math.round(pTeachPercent)}% (${pTeachDone}/${partnerTeachingTasks.length})`;
+
+            const allLearningDone = myLearningTasks.length > 0 && learnDoneCount === myLearningTasks.length;
+            const allTeachingDone = myTeachingTasks.length > 0 && teachDoneCount === myTeachingTasks.length;
+
+            window.sessionDebt = allLearningDone && !allTeachingDone;
+
+            document.getElementById('reversalWarning').style.display = (window.sessionDebt) ? 'flex' : 'none';
+            document.getElementById('valLearn').textContent = allLearningDone ? '✅' : '❌';
+            document.getElementById('valTeach').textContent = allTeachingDone ? '✅' : '❌';
+
+            // Restrictions UI
+            const leaveBtn = document.getElementById('btnLeaveRoom');
+            if (window.sessionDebt) leaveBtn.classList.add('btn-disabled');
+            else leaveBtn.classList.remove('btn-disabled');
+
+            const finishBtn = document.getElementById('btnFinish');
+            const sessionReady = sessionTasks.length > 0 && sessionTasks.every(t => t.status === 'completed');
+            if (sessionReady) {
+                finishBtn.classList.add('ready');
+                finishBtn.classList.remove('btn-disabled');
+                finishBtn.onclick = finishSession;
+            } else {
+                finishBtn.classList.remove('ready');
+                finishBtn.classList.add('btn-disabled');
+                finishBtn.onclick = null;
+            }
+
+            // Participants List
+            const pList = document.getElementById('participantsList');
+            pList.innerHTML = '';
+            sessionData.participants.forEach(uid => {
+                const name = sessionData.participantNames[uid];
+                const online = sessionData.presence?.[uid] === 'online';
+                const div = document.createElement('div');
+                div.className = 'participant-card';
+                div.innerHTML = `
+                    <div class="status-dot ${online ? 'online' : ''}"></div>
+                    <div style="font-size:13px; font-weight:600;">${uid === currentUser.uid ? 'You' : name}</div>
+                `;
+                pList.appendChild(div);
+            });
+        }
+
+        window.addTask = async (type) => {
+            if (sessionTasks.length >= 20) {
+                alert("Task limit reached. (Maximum 20 tasks per session)");
+                return;
+            }
+            const input = document.getElementById(type === 'teaching' ? 'teachTaskInput' : 'learnTaskInput');
+            const title = input.value.trim();
+            if (!title) return;
+
+            try {
+                await addDoc(collection(db, "sessions", sessionId, "tasks"), {
+                    title: title,
+                    type: type === 'teaching' ? 'teaching_task' : 'learning_task',
+                    assignedTo: currentUser.uid,
+                    status: 'pending',
+                    createdAt: serverTimestamp()
+                });
+                input.value = '';
+            } catch (err) {
+                alert("Error adding task: " + err.message);
+            }
+        };
+
+        window.toggleTask = async (taskId, assignedTo) => {
+            if (assignedTo !== currentUser.uid) {
+                alert("Only the assigned user can complete this task");
+                return;
+            }
+
+            try {
+                const task = sessionTasks.find(t => t.id === taskId);
+                const newStatus = task.status === 'completed' ? 'pending' : 'completed';
+                await updateDoc(doc(db, "sessions", sessionId, "tasks", taskId), {
+                    status: newStatus
+                });
+                
+                if (newStatus === 'completed') {
+                    await logActivity('completed_task', { taskTitle: task.title });
+                }
+            } catch (err) {
+                console.error("Toggle task error:", err);
+                alert("Action failed: " + err.message);
+            }
+        };
+
+        window.leaveRoom = async () => {
+            // HARD Fairness Enforcement logic
+            const myLearningTasks = sessionTasks.filter(t => t.assignedTo === currentUser.uid && t.type === 'learning_task');
+            const myTeachingTasks = sessionTasks.filter(t => t.assignedTo === currentUser.uid && t.type === 'teaching_task');
+            
+            const learningDone = myLearningTasks.length > 0 && myLearningTasks.every(t => t.status === 'completed');
+            const teachingDone = myTeachingTasks.length > 0 && myTeachingTasks.every(t => t.status === 'completed');
+
+            if (learningDone && !teachingDone) {
+                alert("You must complete your teaching tasks before leaving!");
+                return;
+            }
+
+            if (confirm("Are you sure you want to leave? Progress is saved and you have 48h to rejoin.")) {
+                try {
+                    const deadline = new Date();
+                    deadline.setHours(deadline.getHours() + 48);
+                    
+                    await updateDoc(doc(db, "sessions", sessionId), {
+                        status: 'paused',
+                        lastActiveAt: serverTimestamp(),
+                        deadlineToRejoin: deadline
+                    });
+                    
+                    await logActivity('left');
+                    window.location.href = 'sessions.html';
+                } catch (err) {
+                    alert("Error saving progress: " + err.message);
+                }
+            }
+        };
+
+        async function finishSession() {
+            // Strict check - Both users must finish all tasks
+            const sessionReady = sessionTasks.length > 0 && sessionTasks.every(t => t.status === 'completed');
+            
+            // Hard verification of teaching/learning balance
+            const learningDone = sessionTasks.filter(t => t.type === 'learning_task').every(t => t.status === 'completed');
+            const teachingDone = sessionTasks.filter(t => t.type === 'teaching_task').every(t => t.status === 'completed');
+
+            if (!sessionReady || !learningDone || !teachingDone) {
+                alert("Session cannot be completed unless ALL tasks are finished by both participants.");
+                return;
+            }
+
+            if (!confirm("Are you sure you want to finish the session? This will update your skill progress!")) return;
+            
+            try {
+                // Update User Stats
+                await updateDoc(doc(db, "users", currentUser.uid), {
+                    skillsTaughtCount: increment(1),
+                    skillsLearnedCount: increment(1),
+                    swapsCompletedCount: increment(1),
+                    reliabilityRating: increment(1)
+                });
+
+                // Mark session as completed
+                await updateDoc(doc(db, "sessions", sessionId), { status: 'completed' });
+                
+                alert("Session completed successfully! Well done.");
+                window.location.href = 'sessions.html';
+
+            } catch (err) { alert("Error: " + err.message); }
+        }
+    </script>
+</body>
+</html>

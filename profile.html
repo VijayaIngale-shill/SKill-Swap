@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GyanSwap – My Profile</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --primary: #667eea;
+      --secondary: #764ba2;
+      --accent: #00FF9C;
+      --card-bg: rgba(255, 255, 255, 0.08);
+      --card-border: rgba(255, 255, 255, 0.14);
+      --text: #fff;
+      --text-muted: rgba(255, 255, 255, 0.55);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 900px;
+      animation: fadeIn 0.5s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Header ── */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+    }
+    .back-btn {
+      text-decoration: none;
+      color: #fff;
+      font-size: 14px;
+      font-weight: 500;
+      background: rgba(255,255,255,0.1);
+      padding: 8px 16px;
+      border-radius: 30px;
+      border: 1px solid rgba(255,255,255,0.2);
+      transition: all 0.2s;
+    }
+    .back-btn:hover { background: rgba(255,255,255,0.2); }
+
+    /* ── Profile Card ── */
+    .glass-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 24px;
+      padding: 40px;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    }
+
+    .profile-hero {
+      display: flex;
+      align-items: center;
+      gap: 30px;
+      margin-bottom: 40px;
+    }
+
+    .avatar-large {
+      width: 110px;
+      height: 110px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), var(--primary));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 44px;
+      font-weight: 700;
+      border: 4px solid rgba(255,255,255,0.25);
+      flex-shrink: 0;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.2s;
+    }
+    .avatar-large:hover { transform: scale(1.02); }
+    .avatar-large img {
+      width: 100%; height: 100%; object-fit: cover;
+    }
+    .avatar-overlay {
+      position: absolute; inset: 0;
+      background: rgba(0,0,0,0.4);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 600; opacity: 0;
+      transition: opacity 0.2s;
+    }
+    .editing .avatar-large:hover .avatar-overlay { opacity: 1; }
+
+    .user-meta h1 { font-size: 28px; font-weight: 700; margin-bottom: 5px; }
+    .user-meta p { font-size: 14px; color: var(--text-muted); }
+    .user-meta .age-tag { 
+      display: inline-block; margin-top: 8px; font-size: 13px; 
+      color: var(--accent); background: rgba(0,255,156,0.1); 
+      padding: 2px 10px; border-radius: 20px; 
+    }
+    .age-input-row { display: none; margin-top: 10px; }
+    .editing .age-input-row { display: block; }
+    .editing .age-tag { display: none; }
+    .age-input-row input {
+      background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 8px; color: #fff; padding: 4px 10px; width: 80px; outline: none;
+    }
+
+    .edit-toggle-btn {
+      margin-left: auto;
+      background: var(--accent);
+      color: #1a1a2e;
+      border: none;
+      padding: 10px 24px;
+      border-radius: 30px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    .edit-toggle-btn:hover { transform: scale(1.05); }
+
+    /* ── Bio Section ── */
+    .section { margin-bottom: 30px; }
+    .section-title {
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--accent);
+      margin-bottom: 12px;
+    }
+    .bio-text {
+      font-size: 15px;
+      line-height: 1.6;
+      color: rgba(255,255,255,0.85);
+    }
+    textarea.bio-input {
+      width: 100%;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 12px;
+      color: #fff;
+      padding: 15px;
+      font-family: inherit;
+      font-size: 15px;
+      resize: vertical;
+      min-height: 100px;
+      outline: none;
+      display: none;
+    }
+
+    /* ── Skills Section ── */
+    .skills-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
+    }
+    .skill-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .skill-tag {
+      padding: 6px 16px;
+      border-radius: 30px;
+      font-size: 13px;
+      font-weight: 500;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .skill-tag .remove-skill {
+      cursor: pointer;
+      font-weight: 700;
+      opacity: 0.6;
+      display: none;
+    }
+    .skill-tag .remove-skill:hover { opacity: 1; color: #ff6b6b; }
+
+    .add-skill-ui {
+      display: none;
+      margin-top: 15px;
+      gap: 10px;
+    }
+    .add-skill-ui input {
+      flex: 1;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 20px;
+      color: #fff;
+      padding: 6px 15px;
+      font-size: 13px;
+      outline: none;
+    }
+    .add-skill-btn {
+      background: rgba(255,255,255,0.15);
+      border: none;
+      color: #fff;
+      padding: 6px 15px;
+      border-radius: 20px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    /* ── Action Buttons ── */
+    .action-bar {
+      margin-top: 40px;
+      display: none;
+      gap: 15px;
+      justify-content: flex-end;
+    }
+    .btn {
+      padding: 12px 30px;
+      border-radius: 30px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      font-size: 14px;
+    }
+    .btn-save { background: var(--accent); color: #1a1a2e; }
+    .btn-cancel { background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(255,255,255,0.2); }
+
+    /* ── Edit Mode Classes ── */
+    .editing .bio-text { display: none; }
+    .editing textarea.bio-input { display: block; }
+    .editing .skill-tag .remove-skill { display: inline; }
+    .editing .add-skill-ui { display: flex; }
+    .editing .action-bar { display: flex; }
+    .editing .edit-toggle-btn { display: none; }
+
+    @media (max-width: 600px) {
+      .profile-hero { flex-direction: column; text-align: center; }
+      .edit-toggle-btn { margin: 0 auto; }
+      .skills-grid { grid-template-columns: 1fr; }
+    }
+
+    /* ── Loading Overlay ── */
+    #loadingOverlay {
+        position: fixed; inset: 0; background: rgba(0,0,0,0.6);
+        display: flex; align-items: center; justify-content: center; z-index: 1000;
+        backdrop-filter: blur(5px);
+    }
+    .loader {
+        width: 48px; height: 48px; border: 5px solid #FFF; border-bottom-color: var(--accent);
+        border-radius: 50%; display: inline-block; box-sizing: border-box;
+        animation: rotation 1s linear infinite;
+    }
+    @keyframes rotation { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+  <div id="loadingOverlay"><span class="loader"></span></div>
+
+  <div class="container">
+    <div class="header">
+      <a href="Dashboard.html" class="back-btn">← Back</a>
+      <h2 style="font-size: 18px; font-weight: 600;">My Profile</h2>
+      <a href="settings.html" class="back-btn">Settings ⚙️</a>
+    </div>
+
+    <div class="glass-card" id="profileCard">
+      <div class="profile-hero">
+        <div class="avatar-large" id="profileAvatar" onclick="document.getElementById('photoInput').click()">
+          <div class="avatar-overlay">Change</div>
+          <span id="avatarInitials">?</span>
+        </div>
+        <input type="file" id="photoInput" style="display:none" accept="image/*">
+        
+        <div class="user-meta">
+          <h1 id="profileName">Loading...</h1>
+          <p id="profileEmail">...</p>
+          <div class="age-tag" id="ageDisplay">Age: --</div>
+          <div class="age-input-row">
+            <label style="font-size:12px; color:var(--text-muted)">Age: </label>
+            <input type="number" id="ageInput" placeholder="Age">
+          </div>
+        </div>
+        <button class="edit-toggle-btn" id="editBtn">Edit Profile</button>
+      </div>
+
+      <div class="section">
+        <div class="section-title">About Me</div>
+        <p class="bio-text" id="bioDisplay">No bio added yet.</p>
+        <textarea class="bio-input" id="bioInput" placeholder="Tell us about yourself and what you're passionate about..."></textarea>
+      </div>
+
+      <div class="skills-grid">
+        <div class="section">
+          <div class="section-title">I can teach</div>
+          <div class="skill-tags" id="teachingSkills">
+            <!-- Skills list -->
+          </div>
+          <div class="add-skill-ui">
+            <input type="text" id="addTeachInput" placeholder="New skill...">
+            <button class="add-skill-btn" onclick="addSkill('teaching')">Add</button>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">I want to learn</div>
+          <div class="skill-tags" id="learningSkills">
+            <!-- Skills list -->
+          </div>
+          <div class="add-skill-ui">
+            <input type="text" id="addLearnInput" placeholder="New skill...">
+            <button class="add-skill-btn" onclick="addSkill('learning')">Add</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="action-bar">
+        <button class="btn btn-cancel" id="cancelBtn">Cancel</button>
+        <button class="btn btn-save" id="saveBtn">Save Changes</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBq-BrrT0N4lszLMHowVkk12jit96t7sis",
+      authDomain: "gyan-swap.firebaseapp.com",
+      projectId: "gyan-swap",
+      storageBucket: "gyan-swap.firebasestorage.app",
+      messagingSenderId: "111231263033",
+      appId: "1:111231263033:web:05d8e6166a06c57d57c8e8"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    let currentUser = null;
+    let userData = null;
+    let tempSkillsKnown = [];
+    let tempSkillsWanted = [];
+    let uploadedPhotoURL = null;
+
+    const profileCard = document.getElementById('profileCard');
+    const loadingOverlay = document.getElementById('loadingOverlay');
+
+    // Failsafe: hide loader after 8 seconds
+    const failsafe = setTimeout(() => {
+        if (loadingOverlay.style.display !== 'none') {
+            console.warn("Loading timed out. Hiding loader anyway.");
+            loadingOverlay.style.display = 'none';
+        }
+    }, 8000);
+
+    onAuthStateChanged(auth, async (user) => {
+      console.log("Auth state changed:", user ? user.uid : "no user");
+      if (!user) {
+        window.location.href = 'registration.html';
+        return;
+      }
+      currentUser = user;
+      try {
+        await loadProfile();
+      } catch (err) {
+        console.error("Error loading profile:", err);
+        alert("Firestore Error: " + err.message + "\n\nPlease ensure Firestore is enabled and rules allow access.");
+      } finally {
+        loadingOverlay.style.display = 'none';
+        clearTimeout(failsafe);
+      }
+    });
+
+    async function loadProfile() {
+      console.log("Loading profile for:", currentUser.uid);
+      const docRef = doc(db, 'users', currentUser.uid);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        userData = docSnap.data();
+        renderData();
+      } else {
+        console.log("No user document found, using fallback data.");
+        userData = {
+          displayName: currentUser.displayName || currentUser.email.split('@')[0],
+          email: currentUser.email,
+          bio: "",
+          skillsKnown: [],
+          skillsWanted: []
+        };
+        renderData();
+      }
+    }
+
+    function renderData() {
+      const name = userData.displayName || currentUser.displayName || "User";
+      document.getElementById('profileName').textContent = name;
+      document.getElementById('profileEmail').textContent = userData.email || currentUser.email || "";
+      
+      const initials = name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+      const avatarDiv = document.getElementById('profileAvatar');
+      const photoURL = uploadedPhotoURL || userData.photoURL || currentUser.photoURL;
+      
+      if (photoURL) {
+        avatarDiv.innerHTML = `<img src="${photoURL}" alt="Profile"><div class="avatar-overlay">Change</div>`;
+      } else {
+        avatarDiv.innerHTML = `<div class="avatar-overlay">Change</div><span id="avatarInitials">${initials}</span>`;
+      }
+      
+      document.getElementById('ageDisplay').textContent = userData.age ? `Age: ${userData.age}` : "Age: --";
+      document.getElementById('ageInput').value = userData.age || "";
+
+      const bio = userData.bio || "";
+      document.getElementById('bioDisplay').textContent = bio || "No bio added yet. Tell people what you're interested in!";
+      document.getElementById('bioInput').value = bio;
+
+      tempSkillsKnown = [...(userData.skillsKnown || [])];
+      tempSkillsWanted = [...(userData.skillsWanted || [])];
+
+      renderSkillsList('teachingSkills', tempSkillsKnown, 'teaching');
+      renderSkillsList('learningSkills', tempSkillsWanted, 'learning');
+    }
+
+    function renderSkillsList(containerId, skills, type) {
+      const container = document.getElementById(containerId);
+      container.innerHTML = '';
+      skills.forEach((skill, index) => {
+        const div = document.createElement('div');
+        div.className = 'skill-tag';
+        div.innerHTML = `${skill} <span class="remove-skill" onclick="removeSkill('${type}', ${index})">✕</span>`;
+        container.appendChild(div);
+      });
+    }
+
+    window.addSkill = (type) => {
+      const input = document.getElementById(type === 'teaching' ? 'addTeachInput' : 'addLearnInput');
+      const val = input.value.trim();
+      if (!val) return;
+      
+      if (type === 'teaching') tempSkillsKnown.push(val);
+      else tempSkillsWanted.push(val);
+      
+      renderSkillsList(type === 'teaching' ? 'teachingSkills' : 'learningSkills', 
+                      type === 'teaching' ? tempSkillsKnown : tempSkillsWanted, type);
+      input.value = '';
+    };
+
+    window.removeSkill = (type, index) => {
+      if (type === 'teaching') tempSkillsKnown.splice(index, 1);
+      else tempSkillsWanted.splice(index, 1);
+      
+      renderSkillsList(type === 'teaching' ? 'teachingSkills' : 'learningSkills', 
+                      type === 'teaching' ? tempSkillsKnown : tempSkillsWanted, type);
+    };
+
+    document.getElementById('editBtn').addEventListener('click', () => {
+      profileCard.classList.add('editing');
+    });
+
+    document.getElementById('cancelBtn').addEventListener('click', () => {
+      profileCard.classList.remove('editing');
+      renderData();
+    });
+
+    document.getElementById('saveBtn').addEventListener('click', async () => {
+      loadingOverlay.style.display = 'flex';
+      const newBio = document.getElementById('bioInput').value.trim();
+      const newAge = document.getElementById('ageInput').value;
+      
+      try {
+        const userRef = doc(db, 'users', currentUser.uid);
+        const dataToSave = {
+          displayName: currentUser.displayName || userData.displayName || "",
+          email: currentUser.email || userData.email || "",
+          bio: newBio,
+          age: newAge,
+          skillsKnown: tempSkillsKnown,
+          skillsWanted: tempSkillsWanted,
+          updatedAt: serverTimestamp()
+        };
+
+        if (uploadedPhotoURL) {
+          dataToSave.photoURL = uploadedPhotoURL;
+        }
+
+        await setDoc(userRef, dataToSave, { merge: true });
+        
+        userData.bio = newBio;
+        userData.age = newAge;
+        userData.skillsKnown = [...tempSkillsKnown];
+        userData.skillsWanted = [...tempSkillsWanted];
+        if (uploadedPhotoURL) userData.photoURL = uploadedPhotoURL;
+        
+        profileCard.classList.remove('editing');
+        renderData();
+      } catch (err) {
+        console.error("Save error:", err);
+        alert("Failed to save changes: " + err.message);
+      } finally {
+        loadingOverlay.style.display = 'none';
+      }
+    });
+
+    // Photo Upload Logic (Base64)
+    document.getElementById('photoInput').addEventListener('change', async (e) => {
+      if (!profileCard.classList.contains('editing')) return;
+      const file = e.target.files[0];
+      if (!file) return;
+
+      // Firestore has a 1MB limit for the entire document.
+      // We should warn the user if the image is too large.
+      if (file.size > 500000) { // 500KB limit for better performance
+        alert("Image is too large. Please select an image smaller than 500KB (GyanSwap uses free storage).");
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onloadstart = () => loadingOverlay.style.display = 'flex';
+      reader.onload = (event) => {
+        uploadedPhotoURL = event.target.result; // This is the Base64 string
+        renderData(); // Show preview
+        loadingOverlay.style.display = 'none';
+      };
+      reader.onerror = () => {
+        alert("Failed to read file.");
+        loadingOverlay.style.display = 'none';
+      };
+      reader.readAsDataURL(file);
+    });
+  </script>
+</body>
+</html>
